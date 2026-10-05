@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#070a16"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Space Tycoon">
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon.svg"><link rel="stylesheet" href="style.css">
+<title>Space Mining Tycoon</title></head>
+<body><main id="app">
+<header class="top"><div><div class="brand">ASTRODYNE</div><h1>🚀 Space Mining Tycoon</h1></div><button id="settings" class="round">⚙️</button></header>
+
+<section class="wallet glass"><div class="walletIcon">💎</div><div><small>TRÉSORERIE</small><strong id="money">0 $</strong><span id="income">+0 $/s</span></div><div class="sectorBadge">SECTEUR <b id="sector">1</b></div></section>
+
+<section class="daily glass"><div><b>🎁 Bonus quotidien</b><span id="dailyText">Prêt à réclamer</span></div><button id="dailyBtn">RÉCLAMER</button></section>
+
+<section class="mine">
+<div id="floaters"></div><button id="mine" class="core"><span>⛏️</span><b>EXTRAIRE</b><small>+<i id="tap">1</i> minerai</small></button>
+<div class="orbit o1"></div><div class="orbit o2"></div>
+</section>
+
+<section class="resources"><div class="res"><span>⛏️</span><b id="ore">0</b><small>minerai</small></div><div class="res"><span>🤖</span><b id="bots">0</b><small>robots</small></div><div class="res"><span>⭐</span><b id="xp">0</b><small>expérience</small></div></section>
+
+<nav class="tabs"><button class="tab active" data-page="build"><span>🏭</span>Empire</button><button class="tab" data-page="missions"><span>🎯</span>Missions</button><button class="tab" data-page="worlds"><span>🪐</span>Mondes</button><button class="tab" data-page="prestige"><span>✨</span>Prestige</button></nav>
+
+<section id="build" class="page"></section><section id="missions" class="page hidden"></section><section id="worlds" class="page hidden"></section><section id="prestige" class="page hidden"></section>
+<footer><span id="save">✓ Sauvegarde automatique</span><button id="reset">Réinitialiser</button></footer>
+</main>
+<div id="modal" class="modal hidden"><div class="modalBox"><button id="close">×</button><h2>⚙️ Options</h2><p>La progression est stockée localement sur ton appareil.</p><button id="export" class="wide">Exporter la sauvegarde</button><button id="import" class="wide alt">Importer une sauvegarde</button><input id="file" type="file" accept=".json" hidden><p class="tip">Pour une expérience d'application, ajoute le jeu à l'écran d'accueil depuis Safari.</p></div></div>
+<script src="game.js"></script></body></html>
