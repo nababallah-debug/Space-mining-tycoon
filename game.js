@@ -1760,48 +1760,37 @@ async function saveProfile(){
 
 async function resetGame(){
 
-  if(
-    !confirm(
-      'Réinitialiser toute la progression ? Cette action est irréversible.'
-    )
-  ){
+  if(!confirm(
+    'Réinitialiser toute la progression ? Cette action est irréversible.'
+  )){
     return;
   }
 
-  const btn=
-    document.getElementById(
-      'resetBtn'
-    );
+  const btn=document.getElementById('resetBtn');
 
   if(btn){
     btn.disabled=true;
-    btn.textContent=
-      'RÉINITIALISATION…';
+    btn.textContent='RÉINITIALISATION…';
   }
 
-  // Empêche les sauvegardes automatiques
-  // pendant toute la procédure.
+  // Bloque les sauvegardes automatiques
   syncing=true;
 
   try{
 
-    /*
-     * 1 — SUPABASE
-     *
-     * On tente de supprimer :
-     * - player_state
-     * - leaderboard
-     * - profile
-     */
+    // =====================================================
+    // 1. RESET SUPABASE
+    // =====================================================
 
     if(sb){
 
       try{
 
-        await ensureAuth();
+        const session=await sb.auth.getSession();
 
-        const result=
-          await sb.functions.invoke(
+        if(session?.data?.session){
+
+          const result=await sb.functions.invoke(
             'game-sync',
             {
               body:{
@@ -1810,22 +1799,141 @@ async function resetGame(){
             }
           );
 
-        if(result.error){
-          console.warn(
-            'Cloud reset:',
-            result.error
+          if(result.error){
+            console.warn(
+              'Reset cloud impossible:',
+              result.error
+            );
+          }else{
+            console.log(
+              '☁️ Reset cloud effectué:',
+              result.data
+            );
+          }
+
+        }else{
+
+          console.log(
+            '☁️ Pas de session cloud : reset local uniquement.'
           );
+
         }
 
       }catch(e){
 
         console.warn(
-          'Cloud reset indisponible:',
+          '☁️ Reset Supabase ignoré:',
           e
         );
 
       }
     }
+
+    // =====================================================
+    // 2. SUPPRESSION DE TOUTES LES SAUVEGARDES LOCALES
+    // =====================================================
+
+    try{
+
+      const keys=[
+        'space-mining-v10',
+        'space-mining-v9',
+        'space-mining-v8',
+        'space-mining-v7',
+        'space-mining-v6',
+        'space-mining-v5',
+        'space-mining-v4',
+        'space-mining-v3',
+        'space-mining-v2',
+        'sm-world'
+      ];
+
+      keys.forEach(key=>{
+        localStorage.removeItem(key);
+      });
+
+      localStorage.clear();
+      sessionStorage.clear();
+
+    }catch(e){
+
+      console.warn(
+        'Erreur suppression stockage:',
+        e
+      );
+
+    }
+
+    // =====================================================
+    // 3. SUPPRESSION DES CACHES
+    // =====================================================
+
+    try{
+
+      if('caches' in window){
+
+        const cacheKeys=await caches.keys();
+
+        await Promise.all(
+          cacheKeys.map(
+            key=>caches.delete(key)
+          )
+        );
+
+      }
+
+    }catch(e){
+
+      console.warn(
+        'Erreur suppression cache:',
+        e
+      );
+
+    }
+
+    // =====================================================
+    // 4. NOUVELLE PARTIE EN MÉMOIRE
+    // =====================================================
+
+    s=fresh();
+
+    selectedWorld=0;
+    currentScreen='mine';
+
+    // =====================================================
+    // 5. RECHARGEMENT COMPLET
+    // =====================================================
+
+    syncing=false;
+
+    window.location.href=
+      location.pathname+
+      '?newgame='+
+      Date.now();
+
+  }catch(e){
+
+    console.error(
+      'RESET ERROR:',
+      e
+    );
+
+    syncing=false;
+
+    if(btn){
+
+      btn.disabled=false;
+
+      btn.textContent=
+        'Réinitialiser la partie';
+
+    }
+
+    alert(
+      'Impossible de réinitialiser la partie.'
+    );
+  }
+}
 
     /*
      * 2 — SUPPRESSION LOCALE TOTALE
