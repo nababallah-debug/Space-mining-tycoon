@@ -2502,15 +2502,14 @@ document.addEventListener(
       doPrestige();
       return;
     }
-
-    if(
-      e.target.closest(
-        '#mineButton'
-      )
-    ){
-      mine();
-      return;
-    }
+if(
+  e.target.closest(
+    '#mineBtn'
+  )
+){
+  mine();
+  return;
+}
 
     if(
       e.target.closest(
