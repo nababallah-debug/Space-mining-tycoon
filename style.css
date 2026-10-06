@@ -1150,7 +1150,7 @@ input{
   -webkit-backdrop-filter:blur(20px);
 
   display:grid;
-  grid-template-columns:repeat(5,1fr);
+  grid-template-columns:repeat(6,1fr);
 
   z-index:15;
 }
@@ -1468,4 +1468,105 @@ input{
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
 
+}
+/* =====================================================
+   FIX FINAL — BARRE DES RESSOURCES
+   ===================================================== */
+
+.resource-bar{
+  width:100%;
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:8px !important;
+  padding:10px 0 !important;
+  margin:0 !important;
+  background:transparent !important;
+  border:0 !important;
+}
+
+.resource-card{
+  width:100%;
+  min-width:0 !important;
+  min-height:64px;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  gap:9px;
+  padding:10px !important;
+  margin:0 !important;
+  overflow:hidden;
+  background:linear-gradient(
+    145deg,
+    #151f32,
+    #101827
+  ) !important;
+  border:1px solid #24324b !important;
+  border-radius:14px !important;
+}
+
+.resource-card.production{
+  grid-column:1 / -1 !important;
+}
+
+.resource-card > div{
+  min-width:0 !important;
+  flex:1 1 auto;
+}
+
+.resource-card > span{
+  flex:0 0 30px !important;
+  width:30px !important;
+  height:30px !important;
+}
+
+.resource-card small{
+  display:block !important;
+  white-space:nowrap !important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.resource-card strong{
+  display:block !important;
+  width:100%;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  font-size:14px !important;
+}
+
+.resource-card.production strong{
+  font-size:16px !important;
+}
+
+/* iPhone étroit */
+@media(max-width:380px){
+  .resource-bar{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+  .resource-card{
+    min-height:60px;
+    padding:9px !important;
+  }
+
+  .resource-card > span{
+    flex-basis:27px !important;
+    width:27px !important;
+    height:27px !important;
+    font-size:14px;
+  }
+
+  .resource-card strong{
+    font-size:12px !important;
+  }
+
+  .resource-card.production strong{
+    font-size:14px !important;
+  }
+}
+
+/* Navigation : 6 boutons */
+.bottom-nav{
+  grid-template-columns:repeat(6,1fr) !important;
 }
