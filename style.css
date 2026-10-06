@@ -1844,3 +1844,58 @@ button{
 .shop-card small{
   color:#8592aa !important;
 }
+
+/* =========================================================
+   NAVIGATION - CORRECTION CLICS
+   ========================================================= */
+
+.bottom-nav{
+  position:fixed !important;
+  left:50% !important;
+  bottom:0 !important;
+  transform:translateX(-50%) !important;
+
+  width:min(920px,100%) !important;
+
+  z-index:99999 !important;
+
+  pointer-events:auto !important;
+
+  isolation:isolate;
+}
+
+.bottom-nav button{
+  position:relative !important;
+  z-index:100000 !important;
+
+  pointer-events:auto !important;
+
+  touch-action:manipulation !important;
+
+  -webkit-user-select:none !important;
+  user-select:none !important;
+
+  cursor:pointer !important;
+}
+
+.bottom-nav button span,
+.bottom-nav button small{
+  pointer-events:none !important;
+}
+
+/* Aucun écran ne doit pouvoir passer devant la navigation */
+.screen{
+  position:relative;
+  z-index:1;
+}
+
+/* Le toast ne doit jamais bloquer les clics */
+#toast{
+  pointer-events:none !important;
+}
+
+/* La modale cachée ne doit absolument rien intercepter */
+.modal.hidden{
+  display:none !important;
+  pointer-events:none !important;
+}
