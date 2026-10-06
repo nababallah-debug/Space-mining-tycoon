@@ -531,13 +531,8 @@ function clickPower(){
    ========================================================= */
 
 function baseProd(w,b){
-
-  return(
-    (0.7+0.12*w)*
-    Math.pow(2.8,w)*
-    Math.pow(1.85,b)
-  );
-
+  const earlyBoost = Math.max(1, 2 - b * 0.08);
+  return (1.1+0.18*w) * 3.2**w * 2.0**b * earlyBoost;
 }
 
 
