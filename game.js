@@ -81,18 +81,18 @@ const TECH=[
 ];
 
 const MISSION_BASE=[
-  ['first','Premier forage','clics',1,500],
-  ['collector','Petit capital','lifetime',1e6,5000],
-  ['factory','Première usine','buildings',10,25000],
-  ['operator','Opérateur industriel','buildings',100,250000],
-  ['millionaire','Millionnaire','lifetime',1e9,2e6],
-  ['billionaire','Milliardaire','lifetime',1e12,1e8],
-  ['prestige1','Premier prestige','prestige',1,5e9],
-  ['researcher','Chercheur','tech',5,2e10],
-  ['veteran','Vétéran','level',25,5e10],
-  ['tycoon','Magnat galactique','lifetime',1e16,2e12],
-  ['legend','Légende','prestige',5,1e13],
-  ['empire','Empire spatial','buildings',1000,5e13]
+  ['first','Premier forage','clics',1,250],
+  ['collector','Petit capital','lifetime',1e6,2500],
+  ['factory','Première usine','buildings',10,10000],
+  ['operator','Opérateur industriel','buildings',100,75000],
+  ['millionaire','Millionnaire','lifetime',1e9,500000],
+  ['billionaire','Milliardaire','lifetime',1e12,25000000],
+  ['prestige1','Premier prestige','prestige',1,100000000],
+  ['researcher','Chercheur','tech',5,250000000],
+  ['veteran','Vétéran','level',25,500000000],
+  ['tycoon','Magnat galactique','lifetime',1e16,5000000000],
+  ['legend','Légende','prestige',5,25000000000],
+  ['empire','Empire spatial','buildings',1000,100000000000]
 ];
 
 const PLANET_MISSIONS=WORLDS.slice(1).map((w,i)=>[
@@ -100,15 +100,15 @@ const PLANET_MISSIONS=WORLDS.slice(1).map((w,i)=>[
   'Maîtrise de '+w[1],
   'planet',
   i+1,
-  Math.max(25000,w[2]*0.002)
+  Math.max(5000,w[2]*0.0002)
 ]);
 
 const WEEKLY=[
-  ['week_click','Frénésie de forage','clicks',2500,5e6],
-  ['week_build','Semaine industrielle','buildings',75,2e7],
-  ['week_earn','Mineur acharné','run',1e11,1e8],
-  ['week_buy','Investisseur','spend',1e12,5e8],
-  ['week_world','Explorateur','planet',3,2e9]
+  ['week_click','Frénésie de forage','clicks',2500,1000000],
+  ['week_build','Semaine industrielle','buildings',75,5000000],
+  ['week_earn','Mineur acharné','run',1e11,25000000],
+  ['week_buy','Investisseur','spend',1e12,100000000],
+  ['week_world','Explorateur','planet',3,500000000]
 ];
 
 const TECH_BY_ID=Object.fromEntries(
