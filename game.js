@@ -2521,7 +2521,30 @@ if(
     }
   }
 );
+/* =========================================================
+   NAVIGATION DIRECTE
+   ========================================================= */
 
+document.querySelectorAll('.bottom-nav button[data-go]').forEach(
+  button=>{
+    button.addEventListener(
+      'pointerup',
+      e=>{
+        e.preventDefault();
+        e.stopPropagation();
+
+        const screen=button.dataset.go;
+
+        if(screen){
+          setScreen(screen);
+        }
+      },
+      {
+        passive:false
+      }
+    );
+  }
+);
 /* =========================================================
    BOUCLE PRINCIPALE
    ========================================================= */
