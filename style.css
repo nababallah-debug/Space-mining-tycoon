@@ -12,6 +12,10 @@
   --danger:#ff6f91;
 }
 
+/* =========================================================
+   BASE
+   ========================================================= */
+
 *{
   box-sizing:border-box;
 }
@@ -29,55 +33,26 @@ body{
   min-height:100%;
   min-height:100dvh;
   background:
-    radial-gradient(circle at 50% -15%,rgba(47,82,139,.72) 0,rgba(20,35,61,.5) 24%,transparent 52%),
-    radial-gradient(circle at 10% 45%,rgba(30,65,120,.16),transparent 38%),
-    radial-gradient(circle at 90% 70%,rgba(64,40,120,.12),transparent 35%),
+    radial-gradient(
+      circle at 50% -15%,
+      rgba(47,82,139,.72) 0,
+      rgba(20,35,61,.5) 24%,
+      transparent 52%
+    ),
+    radial-gradient(
+      circle at 10% 45%,
+      rgba(30,65,120,.16),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 90% 70%,
+      rgba(64,40,120,.12),
+      transparent 35%
+    ),
     #070b14;
   color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;
   -webkit-user-select:none;
-
-  /* =====================================================
-   FIX — TEXTE DES BOUTONS TECH / MISSIONS / BOUTIQUE
-   ===================================================== */
-
-#screen-research button,
-#screen-missions button,
-#screen-shop button{
-  color:var(--text) !important;
-  font-size:14px !important;
-  font-weight:700 !important;
-  line-height:1.2 !important;
-  opacity:1 !important;
-  visibility:visible !important;
-  text-indent:0 !important;
-}
-
-#screen-research button *,
-#screen-missions button *,
-#screen-shop button *{
-  color:inherit !important;
-  opacity:1 !important;
-  visibility:visible !important;
-}
-
-#screen-research .card,
-#screen-missions .card,
-#screen-shop .card{
-  color:var(--text) !important;
-}
-
-#screen-research small,
-#screen-missions small,
-#screen-shop small{
-  color:var(--muted) !important;
-}
-
-#screen-research strong,
-#screen-missions strong,
-#screen-shop strong{
-  color:var(--text) !important;
-}
   user-select:none;
   overscroll-behavior:none;
   -webkit-overflow-scrolling:touch;
@@ -172,7 +147,7 @@ input{
   flex:0 0 auto;
   border:1px solid var(--line);
   background:rgba(16,24,39,.68);
-  color:white;
+  color:#fff;
   border-radius:14px;
   font-size:18px;
   backdrop-filter:blur(14px);
@@ -195,22 +170,25 @@ input{
 }
 
 .resource-card{
+  position:relative;
+  width:100%;
   min-width:0;
-  min-height:61px;
+  min-height:64px;
   display:flex;
+  flex-direction:row;
   align-items:center;
   gap:9px;
-  padding:10px 11px;
+  padding:10px;
 
   background:
     linear-gradient(
       145deg,
-      rgba(27,42,68,.78),
-      rgba(11,19,33,.76)
+      #151f32,
+      #101827
     );
 
-  border:1px solid rgba(92,125,174,.30);
-  border-radius:15px;
+  border:1px solid #24324b;
+  border-radius:14px;
 
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.035),
@@ -229,7 +207,7 @@ input{
 }
 
 .resource-card>span{
-  flex:0 0 auto;
+  flex:0 0 30px;
   width:30px;
   height:30px;
   display:grid;
@@ -242,6 +220,7 @@ input{
 
 .resource-card>div{
   min-width:0;
+  flex:1 1 auto;
   display:flex;
   flex-direction:column;
   gap:3px;
@@ -249,17 +228,21 @@ input{
 
 .resource-card small{
   display:block;
+  min-width:0;
   font-size:8px;
   line-height:1;
   letter-spacing:.08em;
   color:var(--muted);
   white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
   font-weight:800;
 }
 
 .resource-card strong{
   display:block;
-  max-width:100%;
+  width:100%;
+  min-width:0;
   font-size:14px;
   line-height:1.1;
   color:var(--text);
@@ -268,7 +251,6 @@ input{
   text-overflow:ellipsis;
 }
 
-/* Production prend toute la largeur */
 .resource-card.production{
   grid-column:1 / -1;
 }
@@ -277,7 +259,6 @@ input{
   font-size:16px;
 }
 
-/* Cristaux */
 .resource-card.crystals{
   border-color:rgba(170,120,255,.30);
 }
@@ -286,7 +267,6 @@ input{
   color:#c9a7ff;
 }
 
-/* Prestige */
 .resource-card.prestige{
   border-color:rgba(255,199,107,.22);
 }
@@ -314,6 +294,7 @@ input{
     opacity:.35;
     transform:translateY(4px);
   }
+
   to{
     opacity:1;
     transform:none;
@@ -360,8 +341,16 @@ input{
   position:relative;
   overflow:hidden;
   background:
-    radial-gradient(circle at 50% 25%,rgba(61,117,201,.15),transparent 38%),
-    linear-gradient(145deg,rgba(20,35,60,.92),rgba(10,18,32,.86));
+    radial-gradient(
+      circle at 50% 25%,
+      rgba(61,117,201,.15),
+      transparent 38%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(20,35,60,.92),
+      rgba(10,18,32,.86)
+    );
   border:1px solid rgba(80,119,173,.38);
   border-radius:24px;
   padding:17px;
@@ -382,11 +371,12 @@ input{
   width:260px;
   height:260px;
   border-radius:50%;
-  background:radial-gradient(
-    circle,
-    rgba(53,111,200,.24) 0,
-    transparent 68%
-  );
+  background:
+    radial-gradient(
+      circle,
+      rgba(53,111,200,.24) 0,
+      transparent 68%
+    );
   top:-90px;
   right:-80px;
   pointer-events:none;
@@ -399,7 +389,12 @@ input{
   display:grid;
   place-items:center;
   background:
-    radial-gradient(circle at 35% 30%,#7db2ff,#204b99 58%,#0b1730);
+    radial-gradient(
+      circle at 35% 30%,
+      #7db2ff,
+      #204b99 58%,
+      #0b1730
+    );
   box-shadow:
     0 0 45px rgba(57,116,223,.34),
     inset 0 0 15px rgba(255,255,255,.12);
@@ -427,7 +422,7 @@ input{
 }
 
 .mine-copy b{
-  color:white;
+  color:#fff;
 }
 
 .mine-btn{
@@ -462,7 +457,7 @@ input{
 }
 
 .combo-line b{
-  color:white;
+  color:#fff;
 }
 
 .combo-line span{
@@ -493,10 +488,11 @@ input{
 
 .quick{
   min-height:82px;
+  min-width:0;
   text-align:left;
   border:1px solid var(--line);
   background:rgba(16,24,39,.68);
-  color:white;
+  color:#fff;
   border-radius:17px;
   padding:11px;
   backdrop-filter:blur(12px);
@@ -589,7 +585,7 @@ input{
 
 .planet-chip strong{
   display:block;
-  color:white;
+  color:#fff;
   font-size:12px;
 }
 
@@ -600,7 +596,7 @@ input{
 .planet-chip.active{
   border-color:#4c80d4;
   background:rgba(21,37,65,.86);
-  color:white;
+  color:#fff;
 }
 
 .planet-chip.locked{
@@ -701,7 +697,7 @@ input{
 
 .building{
   display:grid;
-  grid-template-columns:34px 1fr;
+  grid-template-columns:34px minmax(0,1fr);
   grid-template-rows:auto auto;
   gap:8px 9px;
   align-items:center;
@@ -732,6 +728,8 @@ input{
   display:block;
   font-size:11px;
   line-height:1.25;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .building small{
@@ -798,7 +796,7 @@ input{
 
 
 /* =========================================================
-   RESEARCH
+   RESEARCH / TECH
    ========================================================= */
 
 #researchList{
@@ -813,12 +811,14 @@ input{
   align-items:stretch;
   justify-content:space-between;
   gap:10px;
+  min-width:0;
   min-height:128px;
   padding:12px;
   margin:0;
   background:rgba(16,24,39,.68);
   border:1px solid var(--line);
   border-radius:17px;
+  overflow:hidden;
 }
 
 .research-card>div{
@@ -826,8 +826,11 @@ input{
 }
 
 .research-card strong{
+  display:block;
+  color:var(--text);
   font-size:11px;
   line-height:1.25;
+  overflow-wrap:anywhere;
 }
 
 .research-card small{
@@ -856,7 +859,7 @@ input{
 }
 
 .mission-section{
-  grid-column:1/-1;
+  grid-column:1 / -1;
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:8px;
@@ -864,7 +867,7 @@ input{
 }
 
 .mission-section>h3{
-  grid-column:1/-1;
+  grid-column:1 / -1;
   margin:7px 2px 0;
   font-size:13px;
 }
@@ -879,18 +882,22 @@ input{
 
 .mission-card{
   position:relative;
+  min-width:0;
   min-height:145px;
   padding:12px;
   margin:0;
   background:rgba(16,24,39,.68);
   border:1px solid var(--line);
   border-radius:17px;
+  overflow:hidden;
 }
 
 .mission-card strong{
+  display:block;
+  color:var(--text);
   font-size:11px;
   line-height:1.25;
-  display:block;
+  overflow-wrap:anywhere;
 }
 
 .mission-card small{
@@ -924,7 +931,7 @@ input{
 }
 
 .prestige-card{
-  grid-column:1/-1;
+  grid-column:1 / -1;
   background:
     linear-gradient(
       145deg,
@@ -969,7 +976,7 @@ input{
 
 .rank-row{
   display:grid;
-  grid-template-columns:30px 1fr;
+  grid-template-columns:30px minmax(0,1fr);
   align-items:center;
   gap:8px;
   background:rgba(16,24,39,.68);
@@ -1069,7 +1076,7 @@ input{
   margin-top:6px;
   background:rgba(12,19,32,.78);
   border:1px solid var(--line);
-  color:white;
+  color:#fff;
   border-radius:12px;
   padding:12px;
 }
@@ -1091,14 +1098,14 @@ input{
 
 .secondary{
   background:#202d45;
-  color:white;
+  color:#fff;
   font-weight:800;
 }
 
 .mini-btn{
   border:1px solid var(--line);
   background:rgba(16,24,39,.72);
-  color:white;
+  color:#fff;
   border-radius:11px;
   width:40px;
   height:40px;
@@ -1120,6 +1127,7 @@ input{
 .settings-card>div{
   display:flex;
   justify-content:space-between;
+  gap:10px;
   border-top:1px solid var(--line);
   padding:9px 0;
   color:var(--muted);
@@ -1127,7 +1135,7 @@ input{
 }
 
 .settings-card>div strong{
-  color:white;
+  color:#fff;
 }
 
 .settings-card p{
@@ -1152,7 +1160,7 @@ input{
 
 
 /* =========================================================
-   SHOP
+   SHOP / BOUTIQUE
    ========================================================= */
 
 #shopList{
@@ -1163,15 +1171,94 @@ input{
 
 .shop-card{
   min-width:0;
+  overflow:hidden;
   background:rgba(16,24,39,.68);
   border:1px solid var(--line);
   border-radius:17px;
   padding:13px;
+  color:var(--text);
+}
+
+.shop-card strong{
+  display:block;
+  color:var(--text);
+  font-size:12px;
+  line-height:1.25;
+  overflow-wrap:anywhere;
+}
+
+.shop-card small{
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.35;
+  margin-top:5px;
+}
+
+.shop-card button{
+  width:100%;
+  min-height:40px;
+  margin-top:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  border:1px solid #38598f;
+  background:#142a4d;
+  color:#fff;
+  border-radius:11px;
+  padding:8px;
+  font-size:10px;
+  font-weight:900;
 }
 
 
 /* =========================================================
-   BOTTOM NAV
+   BOUTONS GÉNÉRAUX
+   ========================================================= */
+
+.buy{
+  color:#fff;
+}
+
+.buy:disabled{
+  opacity:.32;
+}
+
+button{
+  -webkit-appearance:none;
+  appearance:none;
+}
+
+#screen-research button,
+#screen-missions button,
+#screen-shop button{
+  color:var(--text);
+  opacity:1;
+  visibility:visible;
+}
+
+#screen-research button:disabled,
+#screen-missions button:disabled,
+#screen-shop button:disabled{
+  opacity:.35;
+}
+
+#screen-research button strong,
+#screen-research button span,
+#screen-research button small,
+#screen-missions button strong,
+#screen-missions button span,
+#screen-missions button small,
+#screen-shop button strong,
+#screen-shop button span,
+#screen-shop button small{
+  color:inherit;
+}
+
+
+/* =========================================================
+   BOTTOM NAVIGATION
    ========================================================= */
 
 .bottom-nav{
@@ -1185,19 +1272,20 @@ input{
     8px
     calc(7px + env(safe-area-inset-bottom));
 
-  background:rgba(7,12,23,.78);
+  background:rgba(7,12,23,.92);
   border-top:1px solid rgba(90,119,164,.28);
 
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
 
   display:grid;
-  grid-template-columns:repeat(6,1fr);
+  grid-template-columns:repeat(6,minmax(0,1fr));
 
   z-index:15;
 }
 
 .bottom-nav button{
+  min-width:0;
   border:0;
   background:transparent;
   color:#65738b;
@@ -1208,19 +1296,26 @@ input{
   align-items:center;
   justify-content:center;
   gap:2px;
+  padding:4px 2px;
+  overflow:hidden;
 }
 
 .bottom-nav button span{
   font-size:19px;
+  line-height:1;
 }
 
 .bottom-nav button small{
   font-size:9px;
   font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
 }
 
 .bottom-nav button.active{
-  color:white;
+  color:#fff;
   background:rgba(20,32,56,.78);
 }
 
@@ -1248,6 +1343,8 @@ input{
 .modal-card{
   position:relative;
   width:min(480px,100%);
+  max-height:90vh;
+  overflow:auto;
   background:rgba(16,24,39,.94);
   border:1px solid var(--line);
   border-radius:22px;
@@ -1288,7 +1385,7 @@ input{
   top:calc(env(safe-area-inset-top) + 8px);
   transform:translateX(-50%);
   background:rgba(23,36,58,.92);
-  color:white;
+  color:#fff;
   border:1px solid #3c5a88;
   padding:9px 13px;
   border-radius:12px;
@@ -1342,6 +1439,7 @@ input{
   .resource-card>span{
     width:28px;
     height:28px;
+    flex-basis:28px;
     font-size:14px;
   }
 
@@ -1354,7 +1452,7 @@ input{
   }
 
   .resource-card.production{
-    grid-column:1/-1;
+    grid-column:1 / -1;
   }
 
   .resource-card.production strong{
@@ -1395,6 +1493,22 @@ input{
     gap:7px;
   }
 
+  .bottom-nav{
+    padding-left:5px;
+    padding-right:5px;
+  }
+
+  .bottom-nav button{
+    min-height:50px;
+  }
+
+  .bottom-nav button span{
+    font-size:18px;
+  }
+
+  .bottom-nav button small{
+    font-size:8px;
+  }
 }
 
 
@@ -1421,6 +1535,7 @@ input{
   .resource-card>span{
     width:26px;
     height:26px;
+    flex-basis:26px;
   }
 
   .resource-card strong{
@@ -1461,6 +1576,22 @@ input{
     font-size:12px;
   }
 
+  .bottom-nav{
+    padding-left:3px;
+    padding-right:3px;
+  }
+
+  .bottom-nav button{
+    min-height:48px;
+  }
+
+  .bottom-nav button span{
+    font-size:17px;
+  }
+
+  .bottom-nav button small{
+    font-size:7px;
+  }
 }
 
 
@@ -1479,12 +1610,12 @@ input{
     grid-template-columns:repeat(5,minmax(0,1fr));
   }
 
-  .resource-card.production{
-    grid-column:auto;
-  }
-
   .resource-card{
     min-height:68px;
+  }
+
+  .resource-card.production{
+    grid-column:auto;
   }
 
   .resource-card.production strong{
@@ -1509,106 +1640,58 @@ input{
   #rankList{
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
-
-}
-/* =====================================================
-   FIX FINAL — BARRE DES RESSOURCES
-   ===================================================== */
-
-.resource-bar{
-  width:100%;
-  display:grid !important;
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:8px !important;
-  padding:10px 0 !important;
-  margin:0 !important;
-  background:transparent !important;
-  border:0 !important;
 }
 
-.resource-card{
-  width:100%;
-  min-width:0 !important;
-  min-height:64px;
-  display:flex !important;
-  flex-direction:row !important;
-  align-items:center !important;
-  gap:9px;
-  padding:10px !important;
-  margin:0 !important;
+
+/* =========================================================
+   CORRECTIONS FINALES
+   ========================================================= */
+
+/* Empêche les éléments dynamiques de casser les cartes */
+.research-card *,
+.mission-card *,
+.shop-card *,
+.building *,
+.planet-card *,
+.rank-row *{
+  max-width:100%;
+}
+
+/* Les textes restent toujours visibles */
+.research-card,
+.mission-card,
+.shop-card,
+.building,
+.planet-card,
+.rank-row{
+  color:var(--text);
+}
+
+/* Les petits textes gardent leur contraste */
+.research-card small,
+.mission-card small,
+.shop-card small,
+.building small,
+.planet-head p,
+.rank-row small{
+  color:var(--muted);
+}
+
+/* Les boutons dynamiques restent lisibles */
+.research-card .buy,
+.mission-card button,
+.shop-card button,
+.building .buy{
+  color:#fff;
+  text-align:center;
+  white-space:normal;
   overflow:hidden;
-  background:linear-gradient(
-    145deg,
-    #151f32,
-    #101827
-  ) !important;
-  border:1px solid #24324b !important;
-  border-radius:14px !important;
 }
 
-.resource-card.production{
-  grid-column:1 / -1 !important;
-}
-
-.resource-card > div{
-  min-width:0 !important;
-  flex:1 1 auto;
-}
-
-.resource-card > span{
-  flex:0 0 30px !important;
-  width:30px !important;
-  height:30px !important;
-}
-
-.resource-card small{
-  display:block !important;
-  white-space:nowrap !important;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.resource-card strong{
-  display:block !important;
-  width:100%;
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-  font-size:14px !important;
-}
-
-.resource-card.production strong{
-  font-size:16px !important;
-}
-
-/* iPhone étroit */
-@media(max-width:380px){
-  .resource-bar{
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  }
-
-  .resource-card{
-    min-height:60px;
-    padding:9px !important;
-  }
-
-  .resource-card > span{
-    flex-basis:27px !important;
-    width:27px !important;
-    height:27px !important;
-    font-size:14px;
-  }
-
-  .resource-card strong{
-    font-size:12px !important;
-  }
-
-  .resource-card.production strong{
-    font-size:14px !important;
-  }
-}
-
-/* Navigation : 6 boutons */
-.bottom-nav{
-  grid-template-columns:repeat(6,1fr) !important;
+/* État désactivé */
+.research-card .buy:disabled,
+.mission-card button:disabled,
+.shop-card button:disabled,
+.building .buy:disabled{
+  opacity:.35;
 }
