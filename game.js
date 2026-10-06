@@ -112,42 +112,19 @@ const SHOP_ITEMS=[
 
 function fresh(){
   const buildings={};
-
   WORLDS.forEach((_,w)=>{
-    BUILDINGS.forEach((_,b)=>{
-      buildings[w+'-'+b]=0;
-    });
+    const list=buildingList(w);
+    list.forEach((_,b)=>buildings[w+'-'+b]=0);
   });
-
   return{
-    money:0,
-    runTotal:0,
-    lifetimeTotal:0,
-    prestige:0,
-    prestigeShards:0,
-
-    crystals:0,
-    lastCrystalCheckAt:Date.now(),
-
-    buildings,
-    research:{},
-    missions:{},
-    weekly:{
-      key:weekKey(),
-      claimed:{},
-      progress:{}
-    },
-
-    xp:0,
-    level:1,
-    nickname:'Mineur',
-    lastActiveAt:Date.now(),
-    lastOfflineClaimAt:Date.now(),
-    combo:0,
-    cLICKS:0,
-    spent:0,
-    offlineLast:0,
-    online:false
+    money:0,runTotal:0,lifetimeTotal:0,prestige:0,prestigeShards:0,
+    crystals:0,buildings,research:{},missions:{},
+    weekly:{key:weekKey(),claimed:{},progress:{}},
+    shopUpgrades:{},
+    event:{current:null,activeUntil:0,nextAt:0},
+    xp:0,level:1,nickname:'Mineur',
+    lastActiveAt:Date.now(),lastOfflineClaimAt:Date.now(),
+    combo:0,cLICKS:0,spent:0,offlineLast:0,online:false
   };
 }
 
@@ -159,11 +136,7 @@ function migrateState(z){
   WORLDS.forEach((_,w)=>buildingList(w).forEach((__,b)=>{
     const k=w+'-'+b;
     if(!Number.isFinite(Number(z.buildings[k])))z.buildings[k]=0;
-    
   }));
-  if(!Number.isFinite(Number(z.lastCrystalCheckAt))){
-  z.lastCrystalCheckAt=Date.now();
-}
   z.research=z.research||{}; z.missions=z.missions||{};
   z.weekly=z.weekly||base.weekly; z.weekly.claimed=z.weekly.claimed||{}; z.weekly.progress=z.weekly.progress||{};
   z.shopUpgrades=z.shopUpgrades||{};
@@ -300,9 +273,7 @@ function setText(id,v){const e=document.getElementById(id);if(e)e.textContent=v;
 function uiHeader(){
   const unlocked=WORLDS.filter((_,i)=>planetUnlocked(i)).length;
   setText('total',fmt(s.money));setText('lifetimeTotal',fmt(s.lifetimeTotal));setText('runTotal',fmt(s.runTotal));
-  setText('rate',fmt(autoRate())+'/s');setText('prestige','P'+s.prestige);
-setText('crystals',fmt(s.crystals||0));
-setText('clickPower','+'+fmt(clickPower()));setText('combo',s.combo);
+  setText('rate',fmt(autoRate())+'/s');setText('prestige','P'+s.prestige);setText('clickPower','+'+fmt(clickPower()));setText('combo',s.combo);
   setText('crystals',fmt(s.crystals));setText('profileName',s.nickname);setText('profileLevel',s.level);setText('profileXp',fmt(s.xp));setText('profileTotal',fmt(s.lifetimeTotal));
   setText('profileStatus',s.online?'☁️ Classement synchronisé':'📱 Mode local');setText('onlineDot',s.online?'● CLOUD':'● LOCAL');
   setText('worldProgress',unlocked+'/'+WORLDS.length+' débloquées');setText('researchProgress',Object.keys(s.research).length+'/'+TECH.length);
@@ -422,60 +393,9 @@ function checkEvents(){
   if(s.event.current&&now>=s.event.activeUntil)s.event.current=null;
 }
 
-function crystalAutoFarm(){
-  const now=Date.now();
-  const previous=Number(s.lastCrystalCheckAt||now);
-
-  // Nombre de minutes complètes écoulées
-  const minutes=Math.floor(Math.max(0,now-previous)/60000);
-
-  if(minutes<=0)return 0;
-
-  // On limite le nombre de tirages pour éviter un énorme calcul
-  // après une très longue absence.
-  const rolls=Math.min(minutes,1440);
-
-  let found=0;
-
-  for(let i=0;i<rolls;i++){
-    // Base : 1 chance sur 1000 par minute
-    const chance=0.001;
-
-    if(Math.random()<chance){
-      s.crystals++;
-      found++;
-    }
-  }
-
-  s.lastCrystalCheckAt=previous+rolls*60000;
-
-  if(found>0){
-    save();
-    toast('💎 '+found+' cristal'+(found>1?'s':'')+' trouvé'+(found>1?'s':'')+' automatiquement !');
-  }
-
-  return found;
-}
-
 function mine(){
   earn(clickPower());s.cLICKS++;s.combo=Math.min(12,s.combo+1);comboUntil=Date.now()+1700;
-  function mine(){
-  earn(clickPower());
-
-  s.cLICKS++;
-  s.combo=Math.min(12,s.combo+1);
-  comboUntil=Date.now()+1700;
-
-  setText('combo',s.combo);
-
-  const bar=document.getElementById('comboBar');
-  if(bar)bar.style.width=(s.combo/12*100)+'%';
-
-  if(performance.now()-lastUi>120){
-    uiHeader();
-    lastUi=performance.now();
-  }
-}
+  if(Math.random()<crystalChance()){s.crystals++;toast('💎 Cristal quantique trouvé ! +1');}
   setText('combo',s.combo);const bar=document.getElementById('comboBar');if(bar)bar.style.width=(s.combo/12*100)+'%';
   if(performance.now()-lastUi>120){uiHeader();lastUi=performance.now();}
 }
@@ -580,53 +500,21 @@ document.addEventListener('click',e=>{
 document.addEventListener('pointerup',e=>{if(e.target.closest('#mineBtn'))e.preventDefault();},{passive:false});
 
 setInterval(()=>{
-  checkEvents();
-  ensureWeekly();
-
-  // 💎 Farm automatique des cristaux
-  crystalAutoFarm();
-
-  if(Date.now()>comboUntil&&s.combo){
-    s.combo=0;
-    setText('combo',0);
-
-    const bar=document.getElementById('comboBar');
-    if(bar)bar.style.width='0%';
-  }
-
+  checkEvents();ensureWeekly();
+  if(Date.now()>comboUntil&&s.combo){s.combo=0;setText('combo',0);const bar=document.getElementById('comboBar');if(bar)bar.style.width='0%';}
   earn(autoRate()/4);
-
   if(!document.hidden)s.lastActiveAt=Date.now();
-
-  if(performance.now()-lastUi>500){
-    uiHeader();
-
-    if(currentScreen==='buildings')renderBuildings();
-    if(currentScreen==='shop')renderShop();
-
-    lastUi=performance.now();
-  }
+  if(performance.now()-lastUi>500){uiHeader();if(currentScreen==='buildings')renderBuildings();if(currentScreen==='shop')renderShop();lastUi=performance.now();}
 },250);
 
 setInterval(()=>{if(!resetting){save();syncCloud();}},5000);
 
 window.addEventListener('pagehide',()=>{if(resetting)return;s.lastActiveAt=Date.now();save();});
-document.addEventListener('visibilitychange',()=>{
-  if(document.hidden&&!resetting){
-    s.lastActiveAt=Date.now();
-    save();
-    syncCloud(true);
-  }else if(!document.hidden){
-    crystalAutoFarm();
-    checkEvents();
-    uiHeader();
-  }
-});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&!resetting){s.lastActiveAt=Date.now();save();syncCloud(true);}else if(!document.hidden){checkEvents();uiHeader();}});
 
 let selectedWorld=Math.max(0,Math.min(WORLDS.length-1,Number(localStorage.getItem('sm-world')||0)));
 let currentScreen='mine',comboUntil=0,lastUi=0,lastCloud=0,syncing=false,resetting=false,toastTimer=0;
 s=load();
-const crystalBonus=crystalAutoFarm();
 const offlineBonus=earnOffline();
 if(!s.event.nextAt)scheduleEvent();
 checkEvents();uiHeader();setScreen('mine');
