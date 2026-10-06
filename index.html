@@ -23,10 +23,7 @@
   content="black-translucent"
 >
 
-<link
-  rel="manifest"
-  href="manifest.webmanifest"
->
+<link rel="manifest" href="manifest.webmanifest">
 
 <link
   rel="icon"
@@ -44,17 +41,18 @@
   href="style.css"
 >
 
-<link
-  rel="stylesheet"
-  href="update-v12.css"
->
-
 <title>Space Mining Tycoon</title>
 </head>
+
 
 <body>
 
 <div id="app">
+
+
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
 
 <header class="topbar">
 
@@ -66,6 +64,7 @@
     >
 
     <div>
+
       <div class="eyebrow">
         SPACE MINING
       </div>
@@ -74,9 +73,11 @@
         TYCOON
         <span>ONLINE</span>
       </h1>
+
     </div>
 
   </div>
+
 
   <button
     id="accountBtn"
@@ -90,81 +91,11 @@
 
 
 <!-- =====================================================
-     RESSOURCES
+     CONTENU PRINCIPAL
      ===================================================== -->
 
-<section class="resource-bar">
-
-  <div class="resource-card money">
-
-    <span>💰</span>
-
-    <div>
-      <small>SOLDE</small>
-      <strong id="total">0</strong>
-    </div>
-
-  </div>
-
-
-  <div class="resource-card total-resource">
-
-    <span>📦</span>
-
-    <div>
-      <small>TOTAL EXTRAIT</small>
-      <strong id="lifetimeTotal">0</strong>
-    </div>
-
-  </div>
-
-
-  <div class="resource-card production">
-
-    <span>⚡</span>
-
-    <div>
-      <small>PRODUCTION</small>
-      <strong id="rate">0/s</strong>
-    </div>
-
-  </div>
-
-
-  <div class="resource-card prestige">
-
-    <span>👑</span>
-
-    <div>
-      <small>PRESTIGE</small>
-      <strong id="prestige">P0</strong>
-    </div>
-
-  </div>
-
-
-  <div class="resource-card crystals">
-
-    <span>💎</span>
-
-    <div>
-      <small>CRISTAUX</small>
-      <strong id="crystals">0</strong>
-    </div>
-
-  </div>
-
-</section>
-
-
-<div
-  id="toast"
-  role="status"
-  aria-live="polite"
-></div>
-
-
 <main id="main">
+
 
 <!-- =====================================================
      MINE
@@ -174,6 +105,82 @@
   id="screen-mine"
   class="screen active"
 >
+
+
+  <!-- =========================
+       RESSOURCES
+       ========================= -->
+
+  <section
+    class="resource-bar"
+    aria-label="Ressources"
+  >
+
+    <div class="resource-card money">
+
+      <span>💰</span>
+
+      <div>
+        <small>SOLDE</small>
+        <strong id="total">0</strong>
+      </div>
+
+    </div>
+
+
+    <div class="resource-card total-resource">
+
+      <span>📦</span>
+
+      <div>
+        <small>TOTAL EXTRAIT</small>
+        <strong id="lifetimeTotal">0</strong>
+      </div>
+
+    </div>
+
+
+    <div class="resource-card production">
+
+      <span>⚡</span>
+
+      <div>
+        <small>PRODUCTION</small>
+        <strong id="rate">0/s</strong>
+      </div>
+
+    </div>
+
+
+    <div class="resource-card prestige">
+
+      <span>👑</span>
+
+      <div>
+        <small>PRESTIGE</small>
+        <strong id="prestige">P0</strong>
+      </div>
+
+    </div>
+
+
+    <div class="resource-card crystals">
+
+      <span>💎</span>
+
+      <div>
+        <small>CRISTAUX</small>
+        <strong id="crystals">0</strong>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       TITRE
+       ========================= -->
 
   <div class="screen-title">
 
@@ -192,11 +199,16 @@
   </div>
 
 
+  <!-- =========================
+       MINE
+       ========================= -->
+
   <div class="mine-card">
 
     <div class="mine-orb">
       <span id="mineIcon">⛏️</span>
     </div>
+
 
     <div class="mine-copy">
 
@@ -216,6 +228,7 @@
 
     </div>
 
+
     <button
       id="mineBtn"
       class="mine-btn"
@@ -224,15 +237,23 @@
       EXTRAIRE
     </button>
 
+
     <div class="combo-line">
+
       COMBO
       <b id="combo">0</b>
       <span>/12</span>
+
       <i id="comboBar"></i>
+
     </div>
 
   </div>
 
+
+  <!-- =========================
+       ÉVÉNEMENT
+       ========================= -->
 
   <div class="event-card">
 
@@ -248,9 +269,11 @@
 
     </div>
 
+
     <h3 id="eventTitle">
       Aucun événement
     </h3>
+
 
     <p id="eventText">
       Le prochain événement apparaîtra aléatoirement.
@@ -258,6 +281,10 @@
 
   </div>
 
+
+  <!-- =========================
+       RACCOURCIS
+       ========================= -->
 
   <div class="quick-grid">
 
@@ -313,9 +340,7 @@
     >
       <span>💎</span>
       <b>Boutique</b>
-      <small>
-        Améliorations
-      </small>
+      <small>Améliorations</small>
     </button>
 
 
@@ -325,34 +350,43 @@
     >
       <span>🏆</span>
       <b>Classement</b>
-      <small>
-        Top 100 mondial
-      </small>
+      <small>Top 100 mondial</small>
     </button>
 
   </div>
 
+
+  <!-- =========================
+       OBJECTIF
+       ========================= -->
 
   <div class="info-card">
 
     <span>💡</span>
 
     <div>
+
       <b>Objectif actuel</b>
 
       <p id="currentGoal">
         Développe ta première planète.
       </p>
+
     </div>
 
   </div>
 
+
+  <!-- =========================
+       HORS LIGNE
+       ========================= -->
 
   <div class="info-card">
 
     <span>🌙</span>
 
     <div>
+
       <b>Hors-ligne</b>
 
       <p>
@@ -360,9 +394,11 @@
         le jeu. Le bonus est récupéré au
         prochain lancement.
       </p>
+
     </div>
 
   </div>
+
 
 </section>
 
@@ -529,10 +565,13 @@
     </div>
 
     <strong class="shop-balance">
+
       💎
+
       <span id="shopCrystals">
         0
       </span>
+
     </strong>
 
   </div>
@@ -540,22 +579,16 @@
 
   <div class="section-note">
 
-    💎 Les cristaux sont générés
-    automatiquement.
+    💎 Les cristaux sont générés automatiquement.
 
-    Toutes les minutes, une tentative
-    est effectuée avec une chance de
+    Toutes les minutes, une tentative est
+    effectuée avec une chance de
     <strong>1 sur 1 000</strong>.
 
-    Le farm continue également
-    hors ligne.
+    Le farm continue également hors ligne.
 
   </div>
 
-
-  <!-- IMPORTANT :
-       game.js remplit automatiquement
-       cette zone avec les articles. -->
 
   <div id="shopList"></div>
 
@@ -679,23 +712,17 @@
 
     <div>
       <span>Niveau</span>
-      <strong id="profileLevel">
-        1
-      </strong>
+      <strong id="profileLevel">1</strong>
     </div>
 
     <div>
       <span>XP</span>
-      <strong id="profileXp">
-        0
-      </strong>
+      <strong id="profileXp">0</strong>
     </div>
 
     <div>
       <span>Total extrait</span>
-      <strong id="profileTotal">
-        0
-      </strong>
+      <strong id="profileTotal">0</strong>
     </div>
 
   </div>
@@ -721,7 +748,19 @@
 
 </section>
 
+
 </main>
+
+
+<!-- =====================================================
+     TOAST
+     ===================================================== -->
+
+<div
+  id="toast"
+  role="status"
+  aria-live="polite"
+></div>
 
 
 <!-- =====================================================
@@ -792,13 +831,16 @@
       ×
     </button>
 
+
     <h2>
       ☁️ Compte cloud
     </h2>
 
+
     <p id="modalStatus">
       Connexion…
     </p>
+
 
     <button
       id="modalGuest"
@@ -806,6 +848,7 @@
     >
       Connexion invité
     </button>
+
 
     <small>
       Ton score reste jouable hors ligne.
@@ -827,22 +870,40 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0"></script>
 
-<!-- Version augmentée pour forcer Safari à prendre
-     le nouveau game.js -->
+<script src="game.js?v=14"></script>
 
-<script src="game.js?v=13"></script>
 
 <script>
+
 if("serviceWorker" in navigator){
-  window.addEventListener(
-    "load",
-    ()=>{
-      navigator.serviceWorker
-        .register("./sw.js")
-        .catch(()=>{});
+
+  window.addEventListener("load", async ()=>{
+
+    try{
+
+      const registration =
+        await navigator.serviceWorker.register("./sw.js");
+
+      /*
+       * Demande à Safari de vérifier immédiatement
+       * si le service worker a changé.
+       */
+
+      await registration.update();
+
+    }catch(e){
+
+      console.warn(
+        "Service Worker:",
+        e
+      );
+
     }
-  );
+
+  });
+
 }
+
 </script>
 
 </body>
