@@ -1,5 +1,5 @@
 const SUPABASE_URL='https://gvyeooqemajnvfbgnagv.supabase.co';
-const SUPABASE_KEY='sb_publishable_moYDSTJplgl9XPCiKR96bQ_CPt3MJ7z';
+const SUPABASE_KEY='sb_publishable_moYDSTJplgl9XPCiKR96b_CPt3MJ7z';
 
 const sb=window.supabase?.createClient?.(
   SUPABASE_URL,
@@ -111,10 +111,13 @@ const WEEKLY=[
   ['week_world','Explorateur','planet',3,2e11]
 ];
 
-const TECH_BY_ID=Object.fromEntries(TECH.map(x=>[x[0],x]));
+const TECH_BY_ID=Object.fromEntries(
+  TECH.map(x=>[x[0],x])
+);
 
 let s=load();
 let currentScreen='mine';
+
 let selectedWorld=Math.max(
   0,
   Math.min(
@@ -127,9 +130,16 @@ let comboUntil=0;
 let lastUi=0;
 let lastCloud=0;
 let syncing=false;
+let resetting=false;
 let toastTimer=0;
 
+
+/* =========================================================
+   NOUVELLE PARTIE
+   ========================================================= */
+
 function fresh(){
+
   const buildings={};
 
   WORLDS.forEach((_,w)=>{
@@ -147,16 +157,20 @@ function fresh(){
     buildings,
     research:{},
     missions:{},
+
     weekly:{
       key:weekKey(),
       claimed:{},
       progress:{}
     },
+
     xp:0,
     level:1,
     nickname:'Mineur',
+
     lastActiveAt:Date.now(),
     lastOfflineClaimAt:Date.now(),
+
     combo:0,
     cLICKS:0,
     spent:0,
@@ -165,29 +179,49 @@ function fresh(){
   };
 }
 
+
+/* =========================================================
+   CHARGEMENT LOCAL
+   ========================================================= */
+
 function load(){
+
   try{
+
     let raw=null;
 
     for(const k of LEGACY_KEYS){
+
       const v=localStorage.getItem(k);
 
       if(v){
+
         raw=JSON.parse(v);
         break;
+
       }
     }
 
-    const z=Object.assign(fresh(),raw||{});
+    const z=Object.assign(
+      fresh(),
+      raw||{}
+    );
 
-    const oldTotal=Number(raw?.total||0);
+    const oldTotal=
+      Number(raw?.total||0);
 
     if(!raw?.lifetimeTotal){
-      z.lifetimeTotal=oldTotal||Number(raw?.money||0);
-      z.runTotal=z.lifetimeTotal;
+
+      z.lifetimeTotal=
+        oldTotal||
+        Number(raw?.money||0);
+
+      z.runTotal=
+        z.lifetimeTotal;
     }
 
     if(!raw?.runTotal){
+
       z.runTotal=Math.max(
         z.money||0,
         z.runTotal||0
@@ -211,13 +245,21 @@ function load(){
 
     z.research=raw?.research||{};
     z.missions=raw?.missions||{};
-    z.weekly=raw?.weekly||fresh().weekly;
+
+    z.weekly=
+      raw?.weekly||
+      fresh().weekly;
 
     z.weekly.key=weekKey();
-    z.weekly.claimed=z.weekly.claimed||{};
-    z.weekly.progress=z.weekly.progress||{};
+    z.weekly.claimed=
+      z.weekly.claimed||{};
 
-    z.nickname=(z.nickname||'Mineur').slice(0,20);
+    z.weekly.progress=
+      z.weekly.progress||{};
+
+    z.nickname=
+      (z.nickname||'Mineur')
+      .slice(0,20);
 
     const now=Date.now();
 
@@ -237,31 +279,58 @@ function load(){
       !Number.isFinite(z.lastActiveAt)||
       z.lastActiveAt>now+60000
     ){
+
       z.lastActiveAt=now;
+
     }
 
     return z;
 
   }catch(e){
-    console.warn(e);
+
+    console.warn(
+      'Erreur chargement local:',
+      e
+    );
+
     return fresh();
+
   }
 }
 
+
+/* =========================================================
+   SAUVEGARDE
+   ========================================================= */
+
 function save(){
+
   try{
+
     localStorage.setItem(
       KEY,
       JSON.stringify(s)
     );
+
   }catch(e){}
+
 }
 
+
+/* =========================================================
+   FORMATAGE
+   ========================================================= */
+
 function fmt(n){
-  if(!Number.isFinite(n))return '∞';
+
+  if(!Number.isFinite(n))
+    return '∞';
 
   if(Math.abs(n)<1000){
-    return Math.floor(n).toLocaleString('fr-FR');
+
+    return Math.floor(n)
+      .toLocaleString('fr-FR');
+
   }
 
   const units=[
@@ -281,7 +350,13 @@ function fmt(n){
   (units[i-1]||('e'+i*3));
 }
 
+
+/* =========================================================
+   SEMAINE
+   ========================================================= */
+
 function weekKey(d=new Date()){
+
   const x=new Date(
     Date.UTC(
       d.getFullYear(),
@@ -299,10 +374,13 @@ function weekKey(d=new Date()){
   return x.toISOString().slice(0,10);
 }
 
+
 function ensureWeekly(){
+
   const k=weekKey();
 
   if(s.weekly.key!==k){
+
     s.weekly={
       key:k,
       claimed:{},
@@ -310,57 +388,73 @@ function ensureWeekly(){
     };
 
     save();
+
   }
 }
 
+
+/* =========================================================
+   TECHNOLOGIES
+   ========================================================= */
+
 function tech(id){
+
   return !!s.research[id];
+
 }
 
+
 function globalMult(){
+
   let m=
     1+
     (.18*s.prestige)*
     (tech('ascension')?1.5:1);
 
-  for(
-    const id of [
-      'reactor',
-      'fusion',
-      'antimatter',
-      'singularity',
-      'deep',
-      'void'
-    ]
-  ){
+  for(const id of[
+    'reactor',
+    'fusion',
+    'antimatter',
+    'singularity',
+    'deep',
+    'void'
+  ]){
+
     if(tech(id)){
+
       m*=TECH_BY_ID[id][5];
+
     }
   }
 
   return m;
 }
+
 
 function autoMult(){
+
   let m=1;
 
-  for(
-    const id of [
-      'ai',
-      'nano',
-      'dyson',
-      'quantum'
-    ]
-  ){
+  for(const id of[
+    'ai',
+    'nano',
+    'dyson',
+    'quantum'
+  ]){
+
     if(tech(id)){
+
       m*=TECH_BY_ID[id][5];
+
     }
   }
 
   return m;
 }
 
+
 function clickMult(){
+
   let m=1;
 
   if(tech('laser'))m*=1.5;
@@ -370,7 +464,9 @@ function clickMult(){
   return m;
 }
 
+
 function incomeMult(){
+
   let m=1;
 
   if(tech('market'))m*=1.2;
@@ -379,7 +475,9 @@ function incomeMult(){
   return m;
 }
 
+
 function costMult(){
+
   let m=1;
 
   if(tech('logistics'))m*=.92;
@@ -388,21 +486,30 @@ function costMult(){
   return m;
 }
 
+
 function offlineCap(){
-  return tech('time')
-    ?172800
-    :tech('chrono')
-      ?86400
-      :14400;
+
+  if(tech('time'))
+    return 172800;
+
+  if(tech('chrono'))
+    return 86400;
+
+  return 14400;
 }
 
+
 function prestigeMult(){
+
   return 1+
     (.18*s.prestige)*
     (tech('ascension')?1.5:1);
+
 }
 
+
 function clickPower(){
+
   return(
     prestigeMult()*
     globalMult()*
@@ -415,18 +522,29 @@ function clickPower(){
       )
     )
   );
+
 }
 
+
+/* =========================================================
+   BÂTIMENTS
+   ========================================================= */
+
 function baseProd(w,b){
+
   return(
     (0.7+0.12*w)*
     Math.pow(2.8,w)*
     Math.pow(1.85,b)
   );
+
 }
 
+
 function buildingCost(w,b){
-  const n=s.buildings[w+'-'+b]||0;
+
+  const n=
+    s.buildings[w+'-'+b]||0;
 
   return(
     500*
@@ -435,18 +553,25 @@ function buildingCost(w,b){
     Math.pow(1.16,n)*
     costMult()
   );
+
 }
 
+
 function autoRate(){
+
   let r=0;
 
   WORLDS.forEach((_,w)=>{
+
     BUILDINGS.forEach((_,b)=>{
+
       r+=
         (s.buildings[w+'-'+b]||0)*
         baseProd(w,b)*
         WORLDS[w][3];
+
     });
+
   });
 
   return(
@@ -456,25 +581,45 @@ function autoRate(){
     autoMult()*
     incomeMult()
   );
+
 }
 
+
+/* =========================================================
+   NIVEAU
+   ========================================================= */
+
 function levelCheck(){
+
   const nl=
     Math.floor(
       Math.sqrt(s.xp/80)
     )+1;
 
   if(nl>s.level){
+
     s.level=nl;
-    toast('🎉 Niveau '+nl);
+
+    toast(
+      '🎉 Niveau '+nl
+    );
+
   }
+
 }
 
+
+/* =========================================================
+   ARGENT / XP
+   ========================================================= */
+
 function earn(x){
+
   if(
     !Number.isFinite(x)||
     x<=0
-  )return;
+  )
+    return;
 
   s.money+=x;
   s.runTotal+=x;
@@ -490,24 +635,38 @@ function earn(x){
   );
 
   levelCheck();
+
 }
+
 
 function spend(x){
+
   s.money-=x;
   s.spent+=x;
+
 }
 
+
 function totalBuildings(){
+
   return Object.values(
     s.buildings
   ).reduce(
     (a,b)=>a+(Number(b)||0),
     0
   );
+
 }
 
+
+/* =========================================================
+   PLANÈTES
+   ========================================================= */
+
 function planetUnlocked(w){
-  if(w===0)return true;
+
+  if(w===0)
+    return true;
 
   const prev=w-1;
 
@@ -515,17 +674,23 @@ function planetUnlocked(w){
     (_,b)=>
       (s.buildings[prev+'-'+b]||0)>=1
   );
+
 }
 
+
 function planetLevels(w){
+
   return BUILDINGS.reduce(
     (a,_,b)=>
       a+(s.buildings[w+'-'+b]||0),
     0
   );
+
 }
 
+
 function planetDone(w){
+
   return(
     planetUnlocked(w)&&
     BUILDINGS.every(
@@ -533,15 +698,20 @@ function planetDone(w){
         (s.buildings[w+'-'+b]||0)>=10
     )
   );
+
 }
 
+
 function goalText(){
+
   for(
     let i=1;
     i<WORLDS.length;
     i++
   ){
+
     if(!planetUnlocked(i)){
+
       return(
         'Construire au moins 1 exemplaire de chacun des '+
         BUILDINGS.length+
@@ -550,17 +720,27 @@ function goalText(){
         ' pour débloquer '+
         WORLDS[i][1]+'.'
       );
+
     }
+
   }
 
   return(
     'Toutes les planètes sont accessibles. '+
     'Maîtrise-les avec 10 de chaque bâtiment pour préparer le prestige.'
   );
+
 }
 
+
+/* =========================================================
+   MISSIONS
+   ========================================================= */
+
 function missionValue(m){
+
   switch(m[2]){
+
     case 'clics':
       return s.cLICKS;
 
@@ -593,13 +773,18 @@ function missionValue(m){
 
     default:
       return 0;
+
   }
+
 }
 
+
 function weeklyValue(m){
+
   ensureWeekly();
 
   switch(m[2]){
+
     case 'clicks':
       return s.cLICKS;
 
@@ -621,13 +806,23 @@ function weeklyValue(m){
 
     default:
       return 0;
+
   }
+
 }
 
-function toast(t){
-  const e=document.getElementById('toast');
 
-  if(!e)return;
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function toast(t){
+
+  const e=
+    document.getElementById('toast');
+
+  if(!e)
+    return;
 
   e.textContent=t;
   e.classList.add('show');
@@ -638,9 +833,16 @@ function toast(t){
     ()=>e.classList.remove('show'),
     1600
   );
+
 }
 
+
+/* =========================================================
+   INTERFACE
+   ========================================================= */
+
 function uiHeader(){
+
   const unlocked=
     WORLDS.filter(
       (_,i)=>planetUnlocked(i)
@@ -708,28 +910,38 @@ function uiHeader(){
     document.getElementById('onlineDot');
 
   if(dot){
+
     dot.style.color=
       s.online
         ?'var(--good)'
         :'var(--warn)';
+
   }
+
 }
+
 
 function setText(id,v){
-  const e=document.getElementById(id);
 
-  if(e){
+  const e=
+    document.getElementById(id);
+
+  if(e)
     e.textContent=v;
-  }
+
 }
 
+
 function setScreen(name){
+
   if(
     !document.getElementById(
       'screen-'+name
     )
   ){
+
     name='mine';
+
   }
 
   currentScreen=name;
@@ -750,12 +962,23 @@ function setScreen(name){
       )
     );
 
-  if(name==='buildings')renderBuildings();
-  if(name==='planets')renderPlanets();
-  if(name==='research')renderResearch();
-  if(name==='missions')renderMissions();
-  if(name==='rank')renderRank();
-  if(name==='profile')renderProfile();
+  if(name==='buildings')
+    renderBuildings();
+
+  if(name==='planets')
+    renderPlanets();
+
+  if(name==='research')
+    renderResearch();
+
+  if(name==='missions')
+    renderMissions();
+
+  if(name==='rank')
+    renderRank();
+
+  if(name==='profile')
+    renderProfile();
 
   uiHeader();
 
@@ -763,9 +986,16 @@ function setScreen(name){
     top:0,
     behavior:'auto'
   });
+
 }
 
+
+/* =========================================================
+   PLANET STRIP
+   ========================================================= */
+
 function worldStrip(){
+
   return WORLDS.map(
     (w,i)=>
       `<button class="planet-chip ${
@@ -781,17 +1011,23 @@ function worldStrip(){
         }</small>
       </button>`
   ).join('');
+
 }
 
+
+/* =========================================================
+   BÂTIMENTS
+   ========================================================= */
+
 function renderBuildings(){
+
   const strip=
     document.getElementById(
       'buildingWorlds'
     );
 
-  if(strip){
+  if(strip)
     strip.innerHTML=worldStrip();
-  }
 
   const w=WORLDS[selectedWorld];
 
@@ -800,7 +1036,11 @@ function renderBuildings(){
       'buildingDetail'
     );
 
+  if(!detail)
+    return;
+
   if(!planetUnlocked(selectedWorld)){
+
     detail.innerHTML=
       `<div class="planet-card locked-card">
         <div class="big-icon">🔒</div>
@@ -814,6 +1054,7 @@ function renderBuildings(){
       </div>`;
 
     return;
+
   }
 
   detail.innerHTML=
@@ -831,6 +1072,7 @@ function renderBuildings(){
 
     <div class="building-list">
       ${BUILDINGS.map((x,b)=>{
+
         const n=
           s.buildings[
             selectedWorld+'-'+b
@@ -855,15 +1097,18 @@ function renderBuildings(){
 
         return`
           <article class="building">
+
             <div class="building-icon">
               ${x[1]}
             </div>
 
             <div class="building-info">
               <strong>${x[0]}</strong>
+
               <small>
                 Niv. ${n} · +${fmt(income)}/s
               </small>
+
               <em>
                 Prochain: ${fmt(c)}
               </em>
@@ -876,28 +1121,49 @@ function renderBuildings(){
             >
               ACHETER
             </button>
+
           </article>`;
+
       }).join('')}
     </div>`;
+
 }
 
+
+/* =========================================================
+   PLANÈTES
+   ========================================================= */
+
 function renderPlanets(){
-  document.getElementById(
-    'planetStrip'
-  ).innerHTML=worldStrip();
+
+  const strip=
+    document.getElementById(
+      'planetStrip'
+    );
+
+  const detail=
+    document.getElementById(
+      'planetDetail'
+    );
+
+  if(!strip||!detail)
+    return;
+
+  strip.innerHTML=worldStrip();
 
   const w=WORLDS[selectedWorld];
   const ok=planetUnlocked(selectedWorld);
   const lv=planetLevels(selectedWorld);
 
-  document.getElementById(
-    'planetDetail'
-  ).innerHTML=ok
+  detail.innerHTML=ok
     ?
       `<article class="planet-card">
+
         <div class="planet-head">
+
           <div>
             <h3>${w[0]} ${w[1]}</h3>
+
             <p>
               Multiplicateur x${w[3]} ·
               ${lv}/${BUILDINGS.length*10} niveaux
@@ -909,6 +1175,7 @@ function renderPlanets(){
               ?'COMPLÈTE'
               :'ACTIVE'}
           </span>
+
         </div>
 
         <div class="progress">
@@ -926,27 +1193,47 @@ function renderPlanets(){
         >
           🏗️ Ouvrir les bâtiments
         </button>
+
       </article>`
     :
       `<div class="planet-card locked-card">
+
         <div class="big-icon">🔒</div>
+
         <h3>${w[0]} ${w[1]}</h3>
+
         <p>
           🔒 Pour l’ouvrir :
           1 de chacun des ${BUILDINGS.length}
           bâtiments sur
           ${WORLDS[selectedWorld-1]?.[1]||'la planète précédente'}.
         </p>
+
       </div>`;
+
 }
 
+
+/* =========================================================
+   RECHERCHE
+   ========================================================= */
+
 function renderResearch(){
-  document.getElementById(
-    'researchList'
-  ).innerHTML=
+
+  const list=
+    document.getElementById(
+      'researchList'
+    );
+
+  if(!list)
+    return;
+
+  list.innerHTML=
     TECH.map((t,i)=>{
+
       const owned=tech(t[0]);
       const prev=i?TECH[i-1][0]:null;
+
       const available=
         !prev||tech(prev);
 
@@ -954,7 +1241,9 @@ function renderResearch(){
         <article class="research-card ${
           available?'':'locked-tech'
         }">
+
           <div>
+
             <span>
               ${
                 owned
@@ -966,7 +1255,9 @@ function renderResearch(){
             </span>
 
             <strong>${t[1]}</strong>
+
             <small>${t[3]}</small>
+
           </div>
 
           <button
@@ -988,47 +1279,69 @@ function renderResearch(){
                   :'VERROUILLÉE'
             }
           </button>
+
         </article>`;
+
     }).join('');
 
   setText(
     'researchCount',
     Object.keys(s.research).length+'/'+TECH.length
   );
+
 }
 
+
+/* =========================================================
+   MISSIONS
+   ========================================================= */
+
 function renderMissions(){
+
   ensureWeekly();
 
-  const base=MISSION_BASE;
+  const list=
+    document.getElementById(
+      'missionList'
+    );
 
-  document.getElementById(
-    'missionList'
-  ).innerHTML=
+  if(!list)
+    return;
+
+  list.innerHTML=
     `<div class="mission-section">
+
       <h3>📜 Campagne</h3>
-      ${base.map(
+
+      ${MISSION_BASE.map(
         m=>missionCard(m,false)
       ).join('')}
+
     </div>
 
     <div class="mission-section">
+
       <h3>🌍 Missions planétaires</h3>
+
       ${PLANET_MISSIONS.map(
         m=>missionCard(m,false)
       ).join('')}
+
     </div>
 
     <div class="mission-section">
+
       <h3>
         📅 Quêtes hebdomadaires
         <small>
           semaine du ${s.weekly.key}
         </small>
       </h3>
+
       ${WEEKLY.map(
         m=>missionCard(m,true)
       ).join('')}
+
     </div>
 
     <div id="prestigeCard"></div>`;
@@ -1041,9 +1354,12 @@ function renderMissions(){
     ' / '+
     (MISSION_BASE.length+PLANET_MISSIONS.length)
   );
+
 }
 
+
 function missionCard(m,weekly){
+
   const id=m[0];
 
   const claimed=
@@ -1066,12 +1382,15 @@ function missionCard(m,weekly){
 
   return`
     <article class="mission-card">
+
       <div class="mission-top">
+
         <strong>
           ${claimed?'✅':'🎯'} ${m[1]}
         </strong>
 
         <span>${fmt(m[4])}</span>
+
       </div>
 
       <small>
@@ -1089,10 +1408,18 @@ function missionCard(m,weekly){
       >
         ${claimed?'RÉCLAMÉ':'RÉCLAMER'}
       </button>
+
     </article>`;
+
 }
 
+
+/* =========================================================
+   PRESTIGE
+   ========================================================= */
+
 function prestigeRequirement(){
+
   const target=
     1e14*
     Math.pow(
@@ -1122,14 +1449,26 @@ function prestigeRequirement(){
     target,
     worlds,
     allTen,
+
     ok:
       s.runTotal>=target&&
       worlds>=1&&
       allTen
   };
+
 }
 
+
 function renderPrestige(){
+
+  const box=
+    document.getElementById(
+      'prestigeCard'
+    );
+
+  if(!box)
+    return;
+
   const p=prestigeRequirement();
 
   const gain=
@@ -1149,20 +1488,20 @@ function renderPrestige(){
       )
     );
 
-  document.getElementById(
-    'prestigeCard'
-  ).innerHTML=
+  box.innerHTML=
     `<div class="prestige-card">
 
       <div class="mission-top">
+
         <strong>
           👑 Prestige ${s.prestige+1}
         </strong>
 
         <span>
-          +${p.gain||gain}
+          +${gain}
           jeton${gain>1?'s':''}
         </span>
+
       </div>
 
       <p>
@@ -1174,6 +1513,7 @@ function renderPrestige(){
         </strong>
         et ${fmt(p.target)}
         de crédits de run.
+
         Le prestige conserve tes technologies,
         ton niveau et tes quêtes.
       </p>
@@ -1201,13 +1541,23 @@ function renderPrestige(){
       </button>
 
     </div>`;
+
 }
 
+
+/* =========================================================
+   CLASSEMENT
+   ========================================================= */
+
 async function renderRank(){
+
   const box=
     document.getElementById(
       'rankList'
     );
+
+  if(!box)
+    return;
 
   box.innerHTML=
     '<div class="section-note">'+
@@ -1215,7 +1565,8 @@ async function renderRank(){
     '</div>';
 
   try{
-    const session=await ensureAuth();
+
+    await ensureAuth();
 
     const{
       data,
@@ -1239,17 +1590,18 @@ async function renderRank(){
       )
       .limit(100);
 
-    if(error)throw error;
+    if(error)
+      throw error;
 
     const mine=s.nickname;
 
-    document.getElementById(
-      'rankMe'
-    ).textContent=
+    setText(
+      'rankMe',
       '☁️ Score synchronisé · '+
       mine+
       ' · '+
-      fmt(s.lifetimeTotal);
+      fmt(s.lifetimeTotal)
+    );
 
     box.innerHTML=
       data?.length
@@ -1257,6 +1609,7 @@ async function renderRank(){
           data.map(
             (r,i)=>
               `<div class="rank-row">
+
                 <div class="pos">
                   ${
                     i<3
@@ -1266,6 +1619,7 @@ async function renderRank(){
                 </div>
 
                 <div>
+
                   <strong>
                     ${esc(r.nickname)}
                   </strong>
@@ -1274,11 +1628,13 @@ async function renderRank(){
                     Niv. ${r.level} ·
                     Prestige ${r.prestige}
                   </small>
+
                 </div>
 
                 <b>
                   ${fmt(Number(r.total))}
                 </b>
+
               </div>`
           ).join('')
         :
@@ -1287,10 +1643,11 @@ async function renderRank(){
           '</div>';
 
   }catch(e){
-    document.getElementById(
-      'rankMe'
-    ).textContent=
-      '📱 Classement local';
+
+    setText(
+      'rankMe',
+      '📱 Classement local'
+    );
 
     box.innerHTML=
       '<div class="section-note">'+
@@ -1298,16 +1655,35 @@ async function renderRank(){
       'Active la connexion invité dans Profil '+
       'pour publier ton score.'+
       '</div>';
+
   }
+
 }
+
+
+/* =========================================================
+   PROFIL
+   ========================================================= */
 
 function renderProfile(){
-  document.getElementById(
-    'nickname'
-  ).value=s.nickname;
+
+  const input=
+    document.getElementById(
+      'nickname'
+    );
+
+  if(input)
+    input.value=s.nickname;
+
 }
 
+
+/* =========================================================
+   CLIC PRINCIPAL
+   ========================================================= */
+
 function mine(){
+
   earn(clickPower());
 
   s.cLICKS++;
@@ -1331,19 +1707,32 @@ function mine(){
     );
 
   if(bar){
+
     bar.style.width=
       (s.combo/12*100)+'%';
+
   }
 
-  const now=performance.now();
+  const now=
+    performance.now();
 
   if(now-lastUi>120){
+
     uiHeader();
+
     lastUi=now;
+
   }
+
 }
 
+
+/* =========================================================
+   ACHAT BÂTIMENT
+   ========================================================= */
+
 function buyBuilding(b){
+
   const c=
     buildingCost(
       selectedWorld,
@@ -1354,31 +1743,42 @@ function buyBuilding(b){
     return;
 
   if(s.money<c){
+
     toast(
       '💸 Il manque '+
       fmt(c-s.money)
     );
+
     return;
+
   }
 
   spend(c);
 
-  s.buildings[
-    selectedWorld+'-'+b
-  ]=
-    (s.buildings[
-      selectedWorld+'-'+b
-    ]||0)+1;
+  const key=
+    selectedWorld+'-'+b;
+
+  s.buildings[key]=
+    (s.buildings[key]||0)+1;
 
   s.xp+=20;
 
   save();
+
   renderBuildings();
   uiHeader();
+
   syncCloud();
+
 }
 
+
+/* =========================================================
+   RECHERCHE
+   ========================================================= */
+
 function doResearch(id){
+
   const t=TECH_BY_ID[id];
 
   if(!t||tech(id))
@@ -1393,22 +1793,29 @@ function doResearch(id){
     idx>0&&
     !tech(TECH[idx-1][0])
   ){
+
     toast(
       '🔒 Technologie précédente requise'
     );
+
     return;
+
   }
 
   if(s.money<t[2]){
+
     toast(
       '💸 Technologie trop chère'
     );
+
     return;
+
   }
 
   spend(t[2]);
 
   s.research[id]=true;
+
   s.xp+=500;
 
   save();
@@ -1419,10 +1826,18 @@ function doResearch(id){
 
   renderResearch();
   uiHeader();
+
   syncCloud(true);
+
 }
 
+
+/* =========================================================
+   MISSION
+   ========================================================= */
+
 function claimMission(id){
+
   const m=
     MISSION_BASE
       .concat(PLANET_MISSIONS)
@@ -1434,9 +1849,8 @@ function claimMission(id){
     !m||
     s.missions[id]||
     missionValue(m)<m[3]
-  ){
+  )
     return;
-  }
 
   s.missions[id]=true;
 
@@ -1451,10 +1865,18 @@ function claimMission(id){
 
   renderMissions();
   uiHeader();
+
   syncCloud(true);
+
 }
 
+
+/* =========================================================
+   QUÊTE HEBDO
+   ========================================================= */
+
 function claimWeekly(id){
+
   ensureWeekly();
 
   const m=
@@ -1466,9 +1888,8 @@ function claimWeekly(id){
     !m||
     s.weekly.claimed[id]||
     weeklyValue(m)<m[3]
-  ){
+  )
     return;
-  }
 
   s.weekly.claimed[id]=true;
 
@@ -1483,17 +1904,28 @@ function claimWeekly(id){
 
   renderMissions();
   uiHeader();
+
   syncCloud(true);
+
 }
 
+
+/* =========================================================
+   PRESTIGE
+   ========================================================= */
+
 function doPrestige(){
+
   const p=prestigeRequirement();
 
   if(!p.ok){
+
     toast(
       '🔒 Conditions de prestige non remplies'
     );
+
     return;
+
   }
 
   const gain=
@@ -1510,13 +1942,27 @@ function doPrestige(){
     );
 
   const keep={
+
     nickname:s.nickname,
-    prestige:s.prestige+gain,
+
+    prestige:
+      s.prestige+gain,
+
     prestigeShards:
       s.prestigeShards+gain,
-    research:{...s.research},
-    missions:{...s.missions},
-    weekly:{...s.weekly},
+
+    research:{
+      ...s.research
+    },
+
+    missions:{
+      ...s.missions
+    },
+
+    weekly:{
+      ...s.weekly
+    },
+
     xp:s.xp,
     level:s.level,
     cLICKS:s.cLICKS,
@@ -1537,10 +1983,18 @@ function doPrestige(){
   );
 
   renderAll();
+
   syncCloud(true);
+
 }
 
+
+/* =========================================================
+   GAIN HORS-LIGNE
+   ========================================================= */
+
 function earnOffline(){
+
   const now=Date.now();
 
   const previous=
@@ -1564,8 +2018,11 @@ function earnOffline(){
   s.lastActiveAt=now;
 
   if(seconds<10){
+
     save();
+
     return 0;
+
   }
 
   const rate=
@@ -1575,16 +2032,17 @@ function earnOffline(){
     );
 
   const bonus=
-    Math.min(
-      rate*seconds*0.75,
-      rate*offlineCap()*0.75
-    );
+    rate*
+    seconds*
+    0.75;
 
   if(
     Number.isFinite(bonus)&&
     bonus>0
   ){
+
     earn(bonus);
+
   }
 
   s.offlineLast=
@@ -1597,13 +2055,22 @@ function earnOffline(){
   return Number.isFinite(bonus)
     ?bonus
     :0;
+
 }
 
+
+/* =========================================================
+   AUTH SUPABASE
+   ========================================================= */
+
 async function ensureAuth(){
+
   if(!sb){
+
     throw new Error(
       'SDK cloud indisponible'
     );
+
   }
 
   const{
@@ -1611,11 +2078,15 @@ async function ensureAuth(){
     error
   }=await sb.auth.getSession();
 
-  if(error)throw error;
+  if(error)
+    throw error;
 
   if(data.session){
+
     s.online=true;
+
     return data.session;
+
   }
 
   const r=
@@ -1627,9 +2098,19 @@ async function ensureAuth(){
   s.online=true;
 
   return r.data.session;
+
 }
 
+
+/* =========================================================
+   SYNCHRONISATION CLOUD
+   ========================================================= */
+
 async function syncCloud(force=false){
+
+  if(resetting)
+    return;
+
   if(
     syncing||
     (
@@ -1637,15 +2118,18 @@ async function syncCloud(force=false){
       Date.now()-lastCloud<12000
     )||
     !sb
-  ){
+  )
     return;
-  }
 
   syncing=true;
   lastCloud=Date.now();
 
   try{
+
     await ensureAuth();
+
+    if(resetting)
+      return;
 
     const{
       error
@@ -1663,25 +2147,48 @@ async function syncCloud(force=false){
       }
     );
 
-    if(error)throw error;
+    if(error)
+      throw error;
 
     s.online=true;
 
   }catch(e){
+
+    console.warn(
+      'Cloud sync:',
+      e
+    );
+
     s.online=false;
 
   }finally{
+
     syncing=false;
-    uiHeader();
+
+    if(!resetting)
+      uiHeader();
+
   }
+
 }
 
+
+/* =========================================================
+   CHARGEMENT CLOUD
+   ========================================================= */
+
 async function loadCloud(){
-  if(!sb)return;
+
+  if(!sb||resetting)
+    return;
 
   try{
+
     const session=
       await ensureAuth();
+
+    if(resetting)
+      return;
 
     const{
       data,
@@ -1695,9 +2202,11 @@ async function loadCloud(){
       )
       .maybeSingle();
 
-    if(error)throw error;
+    if(error)
+      throw error;
 
     if(
+      !resetting&&
       data?.state&&
       Number(
         data.state.lifetimeTotal||
@@ -1706,6 +2215,7 @@ async function loadCloud(){
       )>
       s.lifetimeTotal
     ){
+
       const nick=s.nickname;
 
       s=Object.assign(
@@ -1715,7 +2225,11 @@ async function loadCloud(){
 
       s.nickname=
         s.nickname||nick;
+
     }
+
+    if(resetting)
+      return;
 
     s.online=true;
 
@@ -1725,20 +2239,36 @@ async function loadCloud(){
     await syncCloud(true);
 
   }catch(e){
+
     s.online=false;
+
     uiHeader();
+
   }
+
 }
 
+
+/* =========================================================
+   PROFIL
+   ========================================================= */
+
 async function saveProfile(){
-  s.nickname=
-    (
-      document
-        .getElementById('nickname')
-        .value
-        .trim()||
-      'Mineur'
-    ).slice(0,20);
+
+  const input=
+    document.getElementById(
+      'nickname'
+    );
+
+  if(input){
+
+    s.nickname=
+      (
+        input.value.trim()||
+        'Mineur'
+      ).slice(0,20);
+
+  }
 
   save();
 
@@ -1751,128 +2281,162 @@ async function saveProfile(){
   );
 
   renderProfile();
+
 }
 
 
 /* =========================================================
-   RESET COMPLET — CORRIGÉ POUR SAFARI
+   RESET COMPLET
    ========================================================= */
 
 async function resetGame(){
 
-  if(!confirm(
-    'Réinitialiser toute la progression ? Cette action est irréversible.'
-  )){
+  if(resetting)
     return;
-  }
 
-  const btn=document.getElementById('resetBtn');
+  const confirmed=
+    confirm(
+      'Réinitialiser toute la progression ? Cette action est irréversible.'
+    );
+
+  if(!confirmed)
+    return;
+
+  resetting=true;
+
+  const btn=
+    document.getElementById(
+      'resetBtn'
+    );
 
   if(btn){
-    btn.disabled=true;
-    btn.textContent='RÉINITIALISATION…';
-  }
 
-  // Bloque les sauvegardes automatiques
-  syncing=true;
+    btn.disabled=true;
+
+    btn.textContent=
+      'RÉINITIALISATION…';
+
+  }
 
   try{
 
-    // =====================================================
-    // 1. RESET SUPABASE
-    // =====================================================
+    /*
+     * Attendre une éventuelle synchronisation
+     * déjà en cours avant de supprimer le cloud.
+     */
+
+    let attempts=0;
+
+    while(syncing&&attempts<100){
+
+      await new Promise(
+        resolve=>setTimeout(resolve,100)
+      );
+
+      attempts++;
+
+    }
+
+
+    /* =====================================================
+       1. RESET SUPABASE
+       ===================================================== */
 
     if(sb){
 
       try{
 
-        const session=await sb.auth.getSession();
+        const session=
+          await sb.auth.getSession();
 
         if(session?.data?.session){
 
-          const result=await sb.functions.invoke(
-            'game-sync',
-            {
-              body:{
-                action:'reset'
+          const result=
+            await sb.functions.invoke(
+              'game-sync',
+              {
+                body:{
+                  action:'reset'
+                }
               }
-            }
-          );
+            );
 
           if(result.error){
+
             console.warn(
               'Reset cloud impossible:',
               result.error
             );
+
           }else{
+
             console.log(
               '☁️ Reset cloud effectué:',
               result.data
             );
+
           }
-
-        }else{
-
-          console.log(
-            '☁️ Pas de session cloud : reset local uniquement.'
-          );
 
         }
 
       }catch(e){
 
         console.warn(
-          '☁️ Reset Supabase ignoré:',
+          'Reset Supabase:',
           e
         );
 
       }
+
     }
 
-    // =====================================================
-    // 2. SUPPRESSION DE TOUTES LES SAUVEGARDES LOCALES
-    // =====================================================
+
+    /* =====================================================
+       2. SUPPRESSION LOCALE
+       ===================================================== */
 
     try{
 
-      const keys=[
-        'space-mining-v10',
-        'space-mining-v9',
-        'space-mining-v8',
-        'space-mining-v7',
-        'space-mining-v6',
-        'space-mining-v5',
-        'space-mining-v4',
-        'space-mining-v3',
-        'space-mining-v2',
-        'sm-world'
-      ];
+      LEGACY_KEYS.forEach(
+        key=>{
+          try{
+            localStorage.removeItem(key);
+          }catch(e){}
+        }
+      );
 
-      keys.forEach(key=>{
-        localStorage.removeItem(key);
-      });
+      localStorage.removeItem(
+        'sm-world'
+      );
+
+      localStorage.removeItem(
+        'sm-reset-skip-cloud'
+      );
 
       localStorage.clear();
+
       sessionStorage.clear();
 
     }catch(e){
 
       console.warn(
-        'Erreur suppression stockage:',
+        'Erreur stockage:',
         e
       );
 
     }
 
-    // =====================================================
-    // 3. SUPPRESSION DES CACHES
-    // =====================================================
+
+    /* =====================================================
+       3. SUPPRESSION DES CACHES
+       ===================================================== */
 
     try{
 
       if('caches' in window){
 
-        const cacheKeys=await caches.keys();
+        const cacheKeys=
+          await caches.keys();
 
         await Promise.all(
           cacheKeys.map(
@@ -1885,31 +2449,49 @@ async function resetGame(){
     }catch(e){
 
       console.warn(
-        'Erreur suppression cache:',
+        'Erreur caches:',
         e
       );
 
     }
 
-    // =====================================================
-    // 4. NOUVELLE PARTIE EN MÉMOIRE
-    // =====================================================
+
+    /* =====================================================
+       4. NOUVEL ÉTAT
+       ===================================================== */
 
     s=fresh();
 
     selectedWorld=0;
     currentScreen='mine';
 
-    // =====================================================
-    // 5. RECHARGEMENT COMPLET
-    // =====================================================
+
+    /* =====================================================
+       5. MARQUEUR POUR EMPÊCHER UNE RESTAURATION CLOUD
+       ===================================================== */
+
+    try{
+
+      sessionStorage.setItem(
+        'sm-reset-complete',
+        '1'
+      );
+
+    }catch(e){}
+
 
     syncing=false;
 
-    window.location.href=
+
+    /* =====================================================
+       6. RECHARGEMENT
+       ===================================================== */
+
+    window.location.replace(
       location.pathname+
       '?newgame='+
-      Date.now();
+      Date.now()
+    );
 
   }catch(e){
 
@@ -1918,6 +2500,7 @@ async function resetGame(){
       e
     );
 
+    resetting=false;
     syncing=false;
 
     if(btn){
@@ -1932,129 +2515,18 @@ async function resetGame(){
     alert(
       'Impossible de réinitialiser la partie.'
     );
+
   }
+
 }
 
-    /*
-     * 2 — SUPPRESSION LOCALE TOTALE
-     */
 
-    try{
-
-      // Supprime la sauvegarde V10
-      localStorage.removeItem(KEY);
-
-      // Supprime toutes les anciennes versions
-      LEGACY_KEYS.forEach(
-        key=>{
-          try{
-            localStorage.removeItem(key);
-          }catch(e){}
-        }
-      );
-
-      // Supprime la planète sélectionnée
-      localStorage.removeItem(
-        'sm-world'
-      );
-
-      // Sécurité supplémentaire :
-      // suppression de toutes les données
-      // du domaine.
-      localStorage.clear();
-
-      sessionStorage.clear();
-
-    }catch(e){
-
-      console.warn(
-        'Storage reset:',
-        e
-      );
-
-    }
-
-    /*
-     * 3 — SUPPRESSION DES CACHES
-     */
-
-    try{
-
-      if('caches' in window){
-
-        const keys=
-          await caches.keys();
-
-        await Promise.all(
-          keys.map(
-            key=>
-              caches.delete(key)
-          )
-        );
-      }
-
-    }catch(e){
-
-      console.warn(
-        'Cache reset:',
-        e
-      );
-
-    }
-
-    /*
-     * 4 — NOUVEL ÉTAT EN MÉMOIRE
-     */
-
-    s=fresh();
-
-    selectedWorld=0;
-    currentScreen='mine';
-
-    /*
-     * 5 — STOP DU MODE RESET
-     */
-
-    syncing=false;
-
-    /*
-     * 6 — RECHARGEMENT COMPLET
-     *
-     * Le paramètre unique empêche Safari
-     * de simplement restaurer l'ancienne page.
-     */
-
-    window.location.replace(
-      location.pathname+
-      '?newgame='+
-      Date.now()
-    );
-
-  }catch(e){
-
-    syncing=false;
-
-    console.error(
-      'RESET ERROR:',
-      e
-    );
-
-    if(btn){
-
-      btn.disabled=false;
-
-      btn.textContent=
-        'RÉINITIALISER';
-
-    }
-
-    alert(
-      'Le reset a rencontré une erreur. Recharge la page puis réessaie.'
-    );
-  }
-}
+/* =========================================================
+   ÉCHAPPEMENT HTML
+   ========================================================= */
 
 function esc(x){
+
   return String(x).replace(
     /[&<>"']/g,
     m=>({
@@ -2065,6 +2537,39 @@ function esc(x){
       "'":'&#39;'
     }[m])
   );
+
+}
+
+
+/* =========================================================
+   RENDU GLOBAL
+   ========================================================= */
+
+function renderAll(){
+
+  uiHeader();
+
+  if(currentScreen==='mine')
+    uiHeader();
+
+  if(currentScreen==='buildings')
+    renderBuildings();
+
+  if(currentScreen==='planets')
+    renderPlanets();
+
+  if(currentScreen==='research')
+    renderResearch();
+
+  if(currentScreen==='missions')
+    renderMissions();
+
+  if(currentScreen==='rank')
+    renderRank();
+
+  if(currentScreen==='profile')
+    renderProfile();
+
 }
 
 
@@ -2079,13 +2584,11 @@ document.addEventListener(
     const b=
       e.target.closest('button');
 
-    if(!b)return;
+    if(!b)
+      return;
 
-    /*
-     * IMPORTANT :
-     * Empêche Safari de soumettre un formulaire
-     * lorsqu'on clique sur Reset.
-     */
+
+    /* RESET */
 
     if(b.id==='resetBtn'){
 
@@ -2095,21 +2598,39 @@ document.addEventListener(
       resetGame();
 
       return;
+
     }
+
+
+    /* MINE */
 
     if(b.id==='mineBtn'){
+
       e.preventDefault();
+
       mine();
+
       return;
+
     }
 
+
+    /* NAVIGATION */
+
     if(b.dataset.go){
+
       e.preventDefault();
+
       setScreen(
         b.dataset.go
       );
+
       return;
+
     }
+
+
+    /* PLANÈTES */
 
     if(b.dataset.world){
 
@@ -2127,96 +2648,153 @@ document.addEventListener(
           String(i)
         );
 
-        if(
-          currentScreen==='buildings'
-        ){
+        if(currentScreen==='buildings')
           renderBuildings();
 
-        }else if(
-          currentScreen==='planets'
-        ){
+        else if(currentScreen==='planets')
           renderPlanets();
-        }
 
       }else{
 
         toast(
           '🔒 Planète verrouillée'
         );
+
       }
 
       return;
+
     }
+
+
+    /* BÂTIMENT */
 
     if(
       b.dataset.buy!==undefined
     ){
+
       buyBuilding(
         Number(b.dataset.buy)
       );
+
       return;
+
     }
 
+
+    /* RECHERCHE */
+
     if(b.dataset.research){
+
       doResearch(
         b.dataset.research
       );
+
       return;
+
     }
 
+
+    /* MISSION */
+
     if(b.dataset.mission){
+
       claimMission(
         b.dataset.mission
       );
+
       return;
+
     }
 
+
+    /* HEBDO */
+
     if(b.dataset.weekly){
+
       claimWeekly(
         b.dataset.weekly
       );
+
       return;
+
     }
+
+
+    /* PRESTIGE */
 
     if(b.dataset.prestige){
+
       doPrestige();
+
       return;
+
     }
+
+
+    /* CLASSEMENT */
 
     if(b.id==='refreshRank'){
+
       renderRank();
+
       return;
+
     }
+
+
+    /* COMPTE */
 
     if(b.id==='accountBtn'){
+
       setScreen('profile');
+
       return;
+
     }
 
+
+    /* PROFIL */
+
     if(b.id==='saveProfile'){
+
       saveProfile();
+
       return;
+
     }
+
+
+    /* CONNEXION INVITÉ */
 
     if(b.id==='guestBtn'){
 
       ensureAuth()
         .then(()=>{
+
           s.online=true;
+
           syncCloud(true);
 
           toast(
             '☁️ Classement mondial activé'
           );
+
         })
-        .catch(
-          ()=>toast(
+        .catch(()=>{
+
+          toast(
             '⚠️ Active Anonymous Sign-Ins dans Supabase'
-          )
-        );
+          );
+
+        });
 
       return;
+
     }
+
+
+    /* MODALE */
 
     if(b.id==='closeModal'){
 
@@ -2226,6 +2804,7 @@ document.addEventListener(
         .add('hidden');
 
       return;
+
     }
 
   },
@@ -2236,19 +2815,23 @@ document.addEventListener(
 
 
 /* =========================================================
-   ANTI DOUBLE-CLIC / MINE SAFARI
+   ANTI DOUBLE-CLIC
    ========================================================= */
 
 document.addEventListener(
   'pointerup',
   e=>{
+
     if(
       e.target.closest(
         '#mineBtn'
       )
     ){
+
       e.preventDefault();
+
     }
+
   },
   {
     passive:false
@@ -2262,9 +2845,12 @@ document.addEventListener(
 
 setInterval(
   ()=>{
-    
+
     if(!document.hidden){
-      s.lastActiveAt=Date.now();
+
+      s.lastActiveAt=
+        Date.now();
+
     }
 
     ensureWeekly();
@@ -2286,17 +2872,18 @@ setInterval(
           'comboBar'
         );
 
-      if(bar){
+      if(bar)
         bar.style.width='0%';
-      }
+
     }
 
-    /*
-     * Production toutes les 250 ms.
-     */
+
+    /* Production toutes les 250 ms */
+
     earn(
       autoRate()/4
     );
+
 
     const now=
       performance.now();
@@ -2310,10 +2897,13 @@ setInterval(
       if(
         currentScreen==='buildings'
       ){
+
         renderBuildings();
+
       }
 
       lastUi=now;
+
     }
 
   },
@@ -2322,13 +2912,19 @@ setInterval(
 
 
 /* =========================================================
-   SAUVEGARDE / CLOUD
+   SAUVEGARDE
    ========================================================= */
 
 setInterval(
   ()=>{
-    save();
-    syncCloud();
+
+    if(!resetting){
+
+      save();
+      syncCloud();
+
+    }
+
   },
   5000
 );
@@ -2341,15 +2937,18 @@ setInterval(
 window.addEventListener(
   'pagehide',
   ()=>{
-    /*
-     * Ne pas sauvegarder pendant un reset.
-     */
-    if(syncing)return;
 
-    s.lastActiveAt=Date.now();
+    if(resetting)
+      return;
+
+    s.lastActiveAt=
+      Date.now();
+
     save();
+
   }
 );
+
 
 document.addEventListener(
   'visibilitychange',
@@ -2357,15 +2956,18 @@ document.addEventListener(
 
     if(
       document.hidden&&
-      !syncing
+      !resetting
     ){
 
-      s.lastActiveAt=Date.now();
+      s.lastActiveAt=
+        Date.now();
 
       save();
 
       syncCloud(true);
+
     }
+
   }
 );
 
@@ -2390,6 +2992,37 @@ if(offlineBonus>0){
     ),
     500
   );
+
 }
 
-loadCloud();
+
+/*
+ * Après un reset, on ne recharge PAS immédiatement
+ * une ancienne sauvegarde cloud.
+ */
+
+let skipCloud=false;
+
+try{
+
+  skipCloud=
+    sessionStorage.getItem(
+      'sm-reset-complete'
+    )==='1';
+
+  if(skipCloud){
+
+    sessionStorage.removeItem(
+      'sm-reset-complete'
+    );
+
+  }
+
+}catch(e){}
+
+
+if(!skipCloud){
+
+  loadCloud();
+
+}
