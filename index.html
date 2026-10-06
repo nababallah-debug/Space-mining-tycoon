@@ -869,7 +869,33 @@
      ===================================================== -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.bottom-nav button').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const name = this.getAttribute('data-go');
+      const screen = document.getElementById('screen-' + name);
 
+      if (!screen) return;
+
+      document.querySelectorAll('.screen').forEach(function(s) {
+        s.classList.remove('active');
+      });
+
+      screen.classList.add('active');
+
+      document.querySelectorAll('.bottom-nav button').forEach(function(b) {
+        b.classList.remove('active');
+      });
+
+      this.classList.add('active');
+
+      window.scrollTo(0, 0);
+    });
+  });
+});
+</script>
+<script src="game.js?v=15"></script>
 <script src="game.js?v=15"></script>
 
 
@@ -907,4 +933,22 @@ if("serviceWorker" in navigator){
 </script>
 
 </body>
+  <div id="clickTest" style="
+  position:fixed;
+  top:10px;
+  left:10px;
+  z-index:999999;
+  background:red;
+  color:white;
+  padding:10px;
+  border-radius:10px;
+">
+  TEST
+</div>
+
+<script>
+document.getElementById('clickTest').onclick = function() {
+  alert('LE CLIC FONCTIONNE');
+};
+</script>
 </html>
