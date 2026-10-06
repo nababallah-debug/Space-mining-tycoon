@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Space Tycoon">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="style.css">
+<title>Space Tycoon V4</title>
+</head>
+<body>
+<div id="app">
+<header class="topbar">
+  <div>
+    <div class="brand">🚀 SPACE TYCOON</div>
+    <div id="profileLine" class="muted">Capitaine • Invité</div>
+  </div>
+  <div class="top-actions">
+    <button class="icon-btn" data-modal="profileModal">👤</button>
+    <button class="icon-btn" data-modal="settingsModal">⚙️</button>
+  </div>
+</header>
+
+<main>
+<section class="hero card">
+  <div class="hero-row">
+    <div>
+      <div class="eyebrow" id="worldLabel">🌑 ASTÉROÏDE NOVA</div>
+      <div id="money" class="money">0</div>
+      <div class="rate"><span id="rate">0/s</span> <span>•</span> <span id="total">0 total</span></div>
+    </div>
+    <div class="level">
+      <div>NIVEAU <b id="level">1</b></div>
+      <div class="xpbar"><i id="xpbar"></i></div>
+      <small id="xpText">0 / 100 XP</small>
+    </div>
+  </div>
+  <button id="mineBtn" class="mine-btn">
+    <span>⛏️ MINER</span>
+    <strong id="clickGain">+10 / clic</strong>
+  </button>
+  <div class="quick">
+    <span>🔥 Combo <b id="combo">0</b></span>
+    <span>⚡ Boost <b id="boost">—</b></span>
+    <span>📦 Contrat <b id="contract">—</b></span>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <div class="stat card"><span>🏗️ Bâtiments</span><b id="buildingCount">0</b></div>
+  <div class="stat card"><span>🪐 Planètes</span><b id="worldProgress">1/7</b></div>
+  <div class="stat card"><span>⭐ Prestige</span><b id="prestige">0</b></div>
+  <div class="stat card"><span>🏆 Rang local</span><b id="rank">—</b></div>
+</section>
+
+<section class="card section">
+  <div class="section-head"><h2>🪐 Empire</h2><span id="worldHint" class="pill">Progression</span></div>
+  <div id="worlds" class="world-list"></div>
+</section>
+
+<section class="card section">
+  <div class="section-head"><h2>🏗️ Bâtiments</h2><span id="buildingHint" class="muted">Achète pour produire</span></div>
+  <div id="buildings" class="building-list"></div>
+</section>
+
+<section class="card section">
+  <div class="section-head"><h2>🔬 Recherche</h2></div>
+  <div id="research" class="research-list"></div>
+</section>
+
+<section class="card section">
+  <div class="section-head"><h2>🎯 Missions</h2></div>
+  <div id="missions" class="mission-list"></div>
+</section>
+
+<section class="card section">
+  <div class="section-head"><h2>🏆 Classement</h2><span class="muted">sur cet appareil</span></div>
+  <div id="leaderboard"></div>
+  <p class="tiny">Le classement mondial nécessite un serveur. La V4 prépare le profil et les données pour une future synchronisation en ligne.</p>
+</section>
+
+<section class="card section">
+  <div class="section-head"><h2>🌟 Prestige</h2></div>
+  <div id="prestigeBox"></div>
+</section>
+</main>
+
+<nav class="nav">
+  <button class="nav-active" data-scroll="top">⛏️<span>Mine</span></button>
+  <button data-scroll="buildings">🏗️<span>Empire</span></button>
+  <button data-scroll="research">🔬<span>Recherche</span></button>
+  <button data-scroll="missions">🎯<span>Missions</span></button>
+  <button data-scroll="leaderboard">🏆<span>Rang</span></button>
+</nav>
+
+<div id="toast" class="toast"></div>
+
+<div id="profileModal" class="modal hidden">
+  <div class="modal-card">
+    <button class="close" data-close>×</button>
+    <h2>👤 Capitaine</h2>
+    <p class="muted">Ton profil reste sur ton appareil dans cette version.</p>
+    <label>Pseudo</label>
+    <input id="nicknameInput" maxlength="18" placeholder="Ex. NovaBoss">
+    <button id="saveProfile" class="primary">Enregistrer</button>
+    <div class="profile-stats" id="profileStats"></div>
+  </div>
+</div>
+
+<div id="settingsModal" class="modal hidden">
+  <div class="modal-card">
+    <button class="close" data-close>×</button>
+    <h2>⚙️ Réglages</h2>
+    <button id="exportBtn" class="secondary">💾 Exporter ma sauvegarde</button>
+    <button id="importBtn" class="secondary">📥 Importer une sauvegarde</button>
+    <button id="dailyBtn" class="secondary">🎁 Bonus quotidien</button>
+    <button id="resetBtn" class="danger">♻️ Réinitialiser le jeu</button>
+    <p class="tiny">Avant une réinitialisation, exporte toujours ta sauvegarde.</p>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
