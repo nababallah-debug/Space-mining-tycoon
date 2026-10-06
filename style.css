@@ -1987,3 +1987,41 @@ button {
   display: none !important;
   pointer-events: none !important;
 }
+/* FIX CLICS */
+html,
+body {
+  pointer-events: auto !important;
+}
+
+button,
+a,
+.bottom-nav,
+.bottom-nav button {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+
+.bottom-nav {
+  position: fixed !important;
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+}
+
+.bottom-nav button {
+  position: relative !important;
+  z-index: 1000000 !important;
+}
+
+.bottom-nav button span,
+.bottom-nav button small {
+  pointer-events: none !important;
+}
+
+#toast {
+  pointer-events: none !important;
+}
+
+#modal.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
