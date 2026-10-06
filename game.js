@@ -300,7 +300,9 @@ function setText(id,v){const e=document.getElementById(id);if(e)e.textContent=v;
 function uiHeader(){
   const unlocked=WORLDS.filter((_,i)=>planetUnlocked(i)).length;
   setText('total',fmt(s.money));setText('lifetimeTotal',fmt(s.lifetimeTotal));setText('runTotal',fmt(s.runTotal));
-  setText('rate',fmt(autoRate())+'/s');setText('prestige','P'+s.prestige);setText('clickPower','+'+fmt(clickPower()));setText('combo',s.combo);
+  setText('rate',fmt(autoRate())+'/s');setText('prestige','P'+s.prestige);
+setText('crystals',fmt(s.crystals||0));
+setText('clickPower','+'+fmt(clickPower()));setText('combo',s.combo);
   setText('crystals',fmt(s.crystals));setText('profileName',s.nickname);setText('profileLevel',s.level);setText('profileXp',fmt(s.xp));setText('profileTotal',fmt(s.lifetimeTotal));
   setText('profileStatus',s.online?'☁️ Classement synchronisé':'📱 Mode local');setText('onlineDot',s.online?'● CLOUD':'● LOCAL');
   setText('worldProgress',unlocked+'/'+WORLDS.length+' débloquées');setText('researchProgress',Object.keys(s.research).length+'/'+TECH.length);
