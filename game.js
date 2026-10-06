@@ -1,5 +1,6 @@
 const SUPABASE_URL='https://gvyeooqemajnvfbgnagv.supabase.co';
 const SUPABASE_KEY='sb_publishable_moYDSTJplgl9XPCiKR96b_CPt3MJ7z';
+const GAME_VERSION = '1.0.13';
 
 const sb=window.supabase?.createClient?.(
   SUPABASE_URL,
