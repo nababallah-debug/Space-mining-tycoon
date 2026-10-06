@@ -1,28 +1,106 @@
 <!doctype html>
-<html lang="fr"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#070a16"><meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Space Tycoon">
-<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon.svg"><link rel="stylesheet" href="style.css">
-<title>Space Mining Tycoon</title></head>
-<body><main id="app">
-<header class="top"><div><div class="brand">ASTRODYNE</div><h1>🚀 Space Mining Tycoon</h1></div><button id="settings" class="round">⚙️</button></header>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#07111f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Space Tycoon">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+  <title>Space Mining Tycoon</title>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">SPACE INDUSTRIES</div>
+      <h1>🚀 Space Mining Tycoon</h1>
+    </div>
+    <button id="settingsBtn" class="iconBtn" aria-label="Réglages">⚙️</button>
+  </header>
 
-<section class="wallet glass"><div class="walletIcon">💎</div><div><small>TRÉSORERIE</small><strong id="money">0 $</strong><span id="income">+0 $/s</span></div><div class="sectorBadge">SECTEUR <b id="sector">1</b></div></section>
+  <main>
+    <section class="hero card">
+      <div class="heroRow">
+        <div>
+          <div class="label">TRÉSORERIE</div>
+          <div id="money" class="money">0 ⛏️</div>
+          <div id="rate" class="rate">+0/s</div>
+        </div>
+        <button id="mineBtn" class="mineBtn">⛏️ MINER</button>
+      </div>
+      <div class="progress"><div id="worldProgress"></div></div>
+      <div class="smallRow"><span id="worldName">🌑 Astéroïde Nova</span><span id="xp">Niveau 1 • 0 XP</span></div>
+    </section>
 
-<section class="daily glass"><div><b>🎁 Bonus quotidien</b><span id="dailyText">Prêt à réclamer</span></div><button id="dailyBtn">RÉCLAMER</button></section>
+    <section id="offlineCard" class="card hidden">
+      <div class="sectionTitle">🌙 Pendant ton absence</div>
+      <p id="offlineText"></p>
+      <button id="offlineClaim" class="primary">Récupérer</button>
+    </section>
 
-<section class="mine">
-<div id="floaters"></div><button id="mine" class="core"><span>⛏️</span><b>EXTRAIRE</b><small>+<i id="tap">1</i> minerai</small></button>
-<div class="orbit o1"></div><div class="orbit o2"></div>
-</section>
+    <nav class="tabs">
+      <button class="tab active" data-tab="mine">⛏️ Mine</button>
+      <button class="tab" data-tab="fleet">🚀 Flotte</button>
+      <button class="tab" data-tab="research">🧪 Recherche</button>
+      <button class="tab" data-tab="missions">🎯 Missions</button>
+      <button class="tab" data-tab="empire">👑 Empire</button>
+    </nav>
 
-<section class="resources"><div class="res"><span>⛏️</span><b id="ore">0</b><small>minerai</small></div><div class="res"><span>🤖</span><b id="bots">0</b><small>robots</small></div><div class="res"><span>⭐</span><b id="xp">0</b><small>expérience</small></div></section>
+    <section id="tab-mine" class="tabPanel active">
+      <div class="sectionTitle">🏭 Production</div>
+      <div id="buildings" class="list"></div>
+    </section>
 
-<nav class="tabs"><button class="tab active" data-page="build"><span>🏭</span>Empire</button><button class="tab" data-page="missions"><span>🎯</span>Missions</button><button class="tab" data-page="worlds"><span>🪐</span>Mondes</button><button class="tab" data-page="prestige"><span>✨</span>Prestige</button></nav>
+    <section id="tab-fleet" class="tabPanel">
+      <div class="sectionTitle">🚀 Flotte & expansion</div>
+      <div id="worlds" class="list"></div>
+      <div class="sectionTitle gap">📦 Contrats commerciaux</div>
+      <div id="contracts" class="list"></div>
+    </section>
 
-<section id="build" class="page"></section><section id="missions" class="page hidden"></section><section id="worlds" class="page hidden"></section><section id="prestige" class="page hidden"></section>
-<footer><span id="save">✓ Sauvegarde automatique</span><button id="reset">Réinitialiser</button></footer>
-</main>
-<div id="modal" class="modal hidden"><div class="modalBox"><button id="close">×</button><h2>⚙️ Options</h2><p>La progression est stockée localement sur ton appareil.</p><button id="export" class="wide">Exporter la sauvegarde</button><button id="import" class="wide alt">Importer une sauvegarde</button><input id="file" type="file" accept=".json" hidden><p class="tip">Pour une expérience d'application, ajoute le jeu à l'écran d'accueil depuis Safari.</p></div></div>
-<script src="game.js"></script></body></html>
+    <section id="tab-research" class="tabPanel">
+      <div class="sectionTitle">🧪 Laboratoire</div>
+      <div id="research" class="list"></div>
+      <div class="sectionTitle gap">🔬 Technologies avancées</div>
+      <div id="tech" class="list"></div>
+    </section>
+
+    <section id="tab-missions" class="tabPanel">
+      <div class="sectionTitle">🎯 Missions & succès</div>
+      <div id="missions" class="list"></div>
+      <div class="sectionTitle gap">🏆 Succès</div>
+      <div id="achievements" class="list"></div>
+    </section>
+
+    <section id="tab-empire" class="tabPanel">
+      <div class="sectionTitle">👑 Ton empire</div>
+      <div id="stats" class="card inner"></div>
+      <div id="prestige" class="card inner"></div>
+      <div class="sectionTitle gap">🎁 Bonus du jour</div>
+      <div id="daily" class="card inner"></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="settings" class="modal hidden">
+    <div class="modalBox">
+      <div class="modalHead"><h2>⚙️ Sauvegarde</h2><button id="closeSettings" class="iconBtn">✕</button></div>
+      <p class="muted">Ta progression est sauvegardée automatiquement sur cet appareil.</p>
+      <div class="settingsGrid">
+        <button id="exportBtn" class="secondary">💾 Exporter</button>
+        <label class="secondary fileLabel">📥 Importer<input id="importInput" type="file" accept=".json,application/json"></label>
+        <button id="resetBtn" class="danger">♻️ Réinitialiser</button>
+      </div>
+      <p class="tiny">Version V3 • migration automatique depuis V2 activée.</p>
+    </div>
+  </div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>
