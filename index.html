@@ -1,250 +1,309 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1,viewport-fit=cover"
->
+  <meta name="theme-color" content="#070c17">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Space Mining Tycoon">
 
-<meta
-  name="theme-color"
-  content="#070b14"
->
+  <title>Space Mining Tycoon</title>
 
-<meta
-  name="apple-mobile-web-app-capable"
-  content="yes"
->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg">
 
-<meta
-  name="apple-mobile-web-app-status-bar-style"
-  content="black-translucent"
->
+  <link rel="stylesheet" href="./style.css?v=15">
 
-<link rel="manifest" href="manifest.webmanifest">
-
-<link
-  rel="icon"
-  href="icon.svg"
-  type="image/svg+xml"
->
-
-<link
-  rel="apple-touch-icon"
-  href="icon.svg"
->
-
-<link
-  rel="stylesheet"
-  href="style.css"
->
-
-<title>Space Mining Tycoon</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 
 <body>
 
-<div id="app">
+  <header class="topbar">
 
-
-<!-- =====================================================
-     HEADER
-     ===================================================== -->
-
-<header class="topbar">
-
-  <div class="brand">
-
-    <img
-      src="icon.svg"
-      alt="Space Mining Tycoon"
-    >
-
-    <div>
-
-      <div class="eyebrow">
-        SPACE MINING
-      </div>
-
-      <h1>
-        TYCOON
-        <span>ONLINE</span>
-      </h1>
-
-    </div>
-
-  </div>
-
-
-  <button
-    id="accountBtn"
-    class="icon-btn"
-    aria-label="Profil"
-  >
-    👤
-  </button>
-
-</header>
-
-
-<!-- =====================================================
-     CONTENU PRINCIPAL
-     ===================================================== -->
-
-<main id="main">
-
-
-<!-- =====================================================
-     MINE
-     ===================================================== -->
-
-<section
-  id="screen-mine"
-  class="screen active"
->
-
-
-  <!-- =========================
-       RESSOURCES
-       ========================= -->
-
-  <section
-    class="resource-bar"
-    aria-label="Ressources"
-  >
-
-    <div class="resource-card money">
-
-      <span>💰</span>
-
+    <div class="brand">
+      <div class="brand-icon">🚀</div>
       <div>
-        <small>SOLDE</small>
-        <strong id="total">0</strong>
+        <strong>SPACE MINING</strong>
+        <small>TYCOON</small>
       </div>
-
     </div>
-
-
-    <div class="resource-card total-resource">
-
-      <span>📦</span>
-
-      <div>
-        <small>TOTAL EXTRAIT</small>
-        <strong id="lifetimeTotal">0</strong>
-      </div>
-
-    </div>
-
-
-    <div class="resource-card production">
-
-      <span>⚡</span>
-
-      <div>
-        <small>PRODUCTION</small>
-        <strong id="rate">0/s</strong>
-      </div>
-
-    </div>
-
-
-    <div class="resource-card prestige">
-
-      <span>👑</span>
-
-      <div>
-        <small>PRESTIGE</small>
-        <strong id="prestige">P0</strong>
-      </div>
-
-    </div>
-
-
-    <div class="resource-card crystals">
-
-      <span>💎</span>
-
-      <div>
-        <small>CRISTAUX</small>
-        <strong id="crystals">0</strong>
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- =========================
-       TITRE
-       ========================= -->
-
-  <div class="screen-title">
-
-    <div>
-      <span>SECTEUR ACTIF</span>
-      <h2>Centre de contrôle</h2>
-    </div>
-
-    <b
-      id="onlineDot"
-      class="status-dot"
-    >
-      ● LOCAL
-    </b>
-
-  </div>
-
-
-  <!-- =========================
-       MINE
-       ========================= -->
-
-  <div class="mine-card">
-
-    <div class="mine-orb">
-      <span id="mineIcon">⛏️</span>
-    </div>
-
-
-    <div class="mine-copy">
-
-      <small>
-        EXTRACTION MANUELLE
-      </small>
-
-      <h3 id="minePlanetName">
-        Astéroïde Nova
-      </h3>
-
-      <p>
-        Chaque tap produit
-        <b id="clickPower">+1</b>
-        crédits.
-      </p>
-
-    </div>
-
 
     <button
-      id="mineBtn"
-      class="mine-btn"
-      aria-label="Extraire"
+      id="profileBtn"
+      class="profile-btn"
+      type="button"
+      aria-label="Profil"
     >
-      EXTRAIRE
+      👤
     </button>
 
+  </header>
 
-    <div class="combo-line">
 
-      COMBO
-      <b id="combo">0</b>
-      <span>/12</span>
+  <main id="main">
 
-      <i id="comboBar"></i>
+    <!-- =========================
+         MINE
+    ========================== -->
+    <section id="screen-mine" class="screen active">
+
+      <section class="resource-bar">
+
+        <div class="resource">
+          <span class="resource-icon">💰</span>
+          <div>
+            <small>Crédits</small>
+            <strong id="money">0</strong>
+          </div>
+        </div>
+
+        <div class="resource">
+          <span class="resource-icon">⛏️</span>
+          <div>
+            <small>Minerai</small>
+            <strong id="ore">0</strong>
+          </div>
+        </div>
+
+        <div class="resource">
+          <span class="resource-icon">💎</span>
+          <div>
+            <small>Cristaux</small>
+            <strong id="crystals">0</strong>
+          </div>
+        </div>
+
+        <div class="resource">
+          <span class="resource-icon">⚡</span>
+          <div>
+            <small>Énergie</small>
+            <strong id="energy">0</strong>
+          </div>
+        </div>
+
+      </section>
+
+
+      <section class="mine-card">
+
+        <div class="planet-display">
+          <div id="minePlanet" class="planet-art">🪐</div>
+
+          <div class="mine-info">
+            <h1 id="minePlanetName">Planète</h1>
+            <p id="minePlanetDesc">Exploitez les ressources de la planète.</p>
+          </div>
+        </div>
+
+        <div class="mine-stats">
+
+          <div>
+            <span>Production</span>
+            <strong id="productionRate">0/s</strong>
+          </div>
+
+          <div>
+            <span>Multiplicateur</span>
+            <strong id="multiplier">x1</strong>
+          </div>
+
+          <div>
+            <span>Niveau</span>
+            <strong id="mineLevel">1</strong>
+          </div>
+
+        </div>
+
+        <button
+          id="mineBtn"
+          class="mine-btn"
+          type="button"
+          aria-label="Extraire"
+        >
+          EXTRAIRE
+        </button>
+
+        <div id="mineMessage" class="mine-message"></div>
+
+      </section>
+
+
+      <section class="quick-stats">
+
+        <div class="stat-card">
+          <span>💰</span>
+          <small>Revenus/s</small>
+          <strong id="incomePerSecond">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>🏭</span>
+          <small>Bâtiments</small>
+          <strong id="buildingCount">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>🪐</span>
+          <small>Planètes</small>
+          <strong id="planetCount">1</strong>
+        </div>
+
+      </section>
+
+    </section>
+
+
+    <!-- =========================
+         BUILDINGS
+    ========================== -->
+    <section id="screen-buildings" class="screen">
+
+      <div class="section-header">
+        <div>
+          <h2>🏗️ Bâtiments</h2>
+          <p>Développez votre empire minier.</p>
+        </div>
+      </div>
+
+      <div id="buildingsList" class="card-list"></div>
+
+    </section>
+
+
+    <!-- =========================
+         PLANETS
+    ========================== -->
+    <section id="screen-planets" class="screen">
+
+      <div class="section-header">
+        <div>
+          <h2>🪐 Planètes</h2>
+          <p>Conquérez de nouveaux mondes.</p>
+        </div>
+      </div>
+
+      <div id="planetsList" class="card-list"></div>
+
+    </section>
+
+
+    <!-- =========================
+         RESEARCH
+    ========================== -->
+    <section id="screen-research" class="screen">
+
+      <div class="section-header">
+        <div>
+          <h2>🧪 Technologie</h2>
+          <p>Améliorez vos capacités.</p>
+        </div>
+      </div>
+
+      <div id="researchList" class="card-list"></div>
+
+    </section>
+
+
+    <!-- =========================
+         MISSIONS
+    ========================== -->
+    <section id="screen-missions" class="screen">
+
+      <div class="section-header">
+        <div>
+          <h2>🎯 Missions</h2>
+          <p>Accomplissez vos objectifs et gagnez des récompenses.</p>
+        </div>
+      </div>
+
+      <div id="missionsList" class="card-list"></div>
+
+    </section>
+
+
+    <!-- =========================
+         SHOP
+    ========================== -->
+    <section id="screen-shop" class="screen">
+
+      <div class="section-header">
+        <div>
+          <h2>💎 Boutique</h2>
+          <p>Boostez votre empire.</p>
+        </div>
+      </div>
+
+      <div id="shopList" class="card-list"></div>
+
+    </section>
+
+
+    <!-- =========================
+         RANK
+    ========================== -->
+    <section id="screen-rank" class="screen">
+
+      <div class="section-header">
+        <div>
+          <h2>🏆 Classement</h2>
+          <p>Comparez votre empire aux autres joueurs.</p>
+        </div>
+      </div>
+
+      <div id="rankList" class="card-list"></div>
+
+    </section>
+
+
+    <!-- =========================
+         PROFILE
+    ========================== -->
+    <section id="screen-profile" class="screen">
+
+      <div class="section-header">
+        <div>
+          <h2>👤 Profil</h2>
+          <p>Votre progression.</p>
+        </div>
+      </div>
+
+      <div id="profileContent"></div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       TOAST
+  ========================== -->
+  <div id="toast" class="toast"></div>
+
+
+  <!-- =========================
+       MODAL
+  ========================== -->
+  <div id="modal" class="modal hidden">
+
+    <div class="modal-backdrop"></div>
+
+    <div class="modal-box">
+
+      <button
+        id="modalClose"
+        class="modal-close"
+        type="button"
+        aria-label="Fermer"
+      >
+        ×
+      </button>
+
+      <div id="modalTitle" class="modal-title"></div>
+      <div id="modalBody" class="modal-body"></div>
 
     </div>
 
@@ -252,703 +311,69 @@
 
 
   <!-- =========================
-       ÉVÉNEMENT
-       ========================= -->
-
-  <div class="event-card">
-
-    <div class="event-head">
-
-      <span>
-        ⚡ ÉVÉNEMENT GALACTIQUE
-      </span>
-
-      <b id="eventTimer">
-        —
-      </b>
-
-    </div>
-
-
-    <h3 id="eventTitle">
-      Aucun événement
-    </h3>
-
-
-    <p id="eventText">
-      Le prochain événement apparaîtra aléatoirement.
-    </p>
-
-  </div>
-
-
-  <!-- =========================
-       RACCOURCIS
-       ========================= -->
-
-  <div class="quick-grid">
+       NAVIGATION
+  ========================== -->
+  <nav class="bottom-nav" aria-label="Navigation principale">
 
     <button
-      class="quick"
+      type="button"
+      data-go="mine"
+      class="active"
+    >
+      <span>⛏️</span>
+      <small>Mine</small>
+    </button>
+
+    <button
+      type="button"
       data-go="buildings"
     >
       <span>🏗️</span>
-      <b>Bâtiments</b>
-      <small>Améliorer</small>
+      <small>Bât.</small>
     </button>
 
-
     <button
-      class="quick"
+      type="button"
       data-go="planets"
     >
       <span>🪐</span>
-      <b>Planètes</b>
-      <small id="worldProgress">
-        1/32 débloquée
-      </small>
+      <small>Planètes</small>
     </button>
 
-
     <button
-      class="quick"
+      type="button"
       data-go="research"
     >
       <span>🧪</span>
-      <b>Recherches</b>
-      <small id="researchProgress">
-        0/20
-      </small>
+      <small>Tech</small>
     </button>
 
-
     <button
-      class="quick"
+      type="button"
       data-go="missions"
     >
       <span>🎯</span>
-      <b>Missions</b>
-      <small id="missionProgress">
-        0/43
-      </small>
+      <small>Missions</small>
     </button>
 
-
     <button
-      class="quick"
+      type="button"
       data-go="shop"
     >
       <span>💎</span>
-      <b>Boutique</b>
-      <small>Améliorations</small>
+      <small>Boutique</small>
     </button>
 
+  </nav>
 
-    <button
-      class="quick"
-      data-go="rank"
-    >
-      <span>🏆</span>
-      <b>Classement</b>
-      <small>Top 100 mondial</small>
-    </button>
 
-  </div>
+  <!--
+    IMPORTANT :
+    Pas de Service Worker ici pour le moment.
+    On élimine le cache comme source du problème.
+  -->
 
-
-  <!-- =========================
-       OBJECTIF
-       ========================= -->
-
-  <div class="info-card">
-
-    <span>💡</span>
-
-    <div>
-
-      <b>Objectif actuel</b>
-
-      <p id="currentGoal">
-        Développe ta première planète.
-      </p>
-
-    </div>
-
-  </div>
-
-
-  <!-- =========================
-       HORS LIGNE
-       ========================= -->
-
-  <div class="info-card">
-
-    <span>🌙</span>
-
-    <div>
-
-      <b>Hors-ligne</b>
-
-      <p>
-        La production continue quand tu fermes
-        le jeu. Le bonus est récupéré au
-        prochain lancement.
-      </p>
-
-    </div>
-
-  </div>
-
-
-</section>
-
-
-<!-- =====================================================
-     BÂTIMENTS
-     ===================================================== -->
-
-<section
-  id="screen-buildings"
-  class="screen"
->
-
-  <div class="screen-title">
-
-    <div>
-      <span>INDUSTRIE</span>
-      <h2>Bâtiments</h2>
-    </div>
-
-    <small>
-      10 / planète
-    </small>
-
-  </div>
-
-
-  <div class="section-note">
-
-    🏗️ Les 12 premières planètes gardent
-    leurs bâtiments historiques.
-    À partir de Vespera, une nouvelle
-    gamme industrielle apparaît.
-
-  </div>
-
-
-  <div
-    id="buildingWorlds"
-    class="planet-strip"
-  ></div>
-
-
-  <div id="buildingDetail"></div>
-
-</section>
-
-
-<!-- =====================================================
-     PLANÈTES
-     ===================================================== -->
-
-<section
-  id="screen-planets"
-  class="screen"
->
-
-  <div class="screen-title">
-
-    <div>
-      <span>COLONIES</span>
-      <h2>Planètes</h2>
-    </div>
-
-    <small id="planetTotal">
-      0/32
-    </small>
-
-  </div>
-
-
-  <div
-    id="planetStrip"
-    class="planet-strip"
-  ></div>
-
-
-  <div id="planetDetail"></div>
-
-</section>
-
-
-<!-- =====================================================
-     RECHERCHES
-     ===================================================== -->
-
-<section
-  id="screen-research"
-  class="screen"
->
-
-  <div class="screen-title">
-
-    <div>
-      <span>TECHNOLOGIE</span>
-      <h2>Recherches</h2>
-    </div>
-
-    <small id="researchCount">
-      0/20
-    </small>
-
-  </div>
-
-
-  <div class="section-note">
-
-    20 technologies.
-    Les recherches sont conservées après
-    un prestige.
-
-  </div>
-
-
-  <div id="researchList"></div>
-
-</section>
-
-
-<!-- =====================================================
-     MISSIONS
-     ===================================================== -->
-
-<section
-  id="screen-missions"
-  class="screen"
->
-
-  <div class="screen-title">
-
-    <div>
-      <span>OBJECTIFS</span>
-      <h2>Missions</h2>
-    </div>
-
-    <small id="missionCount">
-      0/43
-    </small>
-
-  </div>
-
-
-  <div id="missionList"></div>
-
-  <div id="prestigeCard"></div>
-
-</section>
-
-
-<!-- =====================================================
-     BOUTIQUE
-     ===================================================== -->
-
-<section
-  id="screen-shop"
-  class="screen"
->
-
-  <div class="screen-title">
-
-    <div>
-      <span>ÉCONOMIE CRISTALLINE</span>
-      <h2>Boutique</h2>
-    </div>
-
-    <strong class="shop-balance">
-
-      💎
-
-      <span id="shopCrystals">
-        0
-      </span>
-
-    </strong>
-
-  </div>
-
-
-  <div class="section-note">
-
-    💎 Les cristaux sont générés automatiquement.
-
-    Toutes les minutes, une tentative est
-    effectuée avec une chance de
-    <strong>1 sur 1 000</strong>.
-
-    Le farm continue également hors ligne.
-
-  </div>
-
-
-  <div id="shopList"></div>
-
-</section>
-
-
-<!-- =====================================================
-     CLASSEMENT
-     ===================================================== -->
-
-<section
-  id="screen-rank"
-  class="screen"
->
-
-  <div class="screen-title">
-
-    <div>
-      <span>GALAXIE</span>
-      <h2>Classement mondial</h2>
-    </div>
-
-    <button
-      id="refreshRank"
-      class="mini-btn"
-    >
-      ↻
-    </button>
-
-  </div>
-
-
-  <div
-    class="rank-me"
-    id="rankMe"
-  >
-    ☁️ Synchronisation du profil…
-  </div>
-
-
-  <div id="rankList"></div>
-
-</section>
-
-
-<!-- =====================================================
-     PROFIL
-     ===================================================== -->
-
-<section
-  id="screen-profile"
-  class="screen"
->
-
-  <div class="screen-title">
-
-    <div>
-      <span>IDENTITÉ</span>
-      <h2>Profil</h2>
-    </div>
-
-  </div>
-
-
-  <div class="profile-card">
-
-    <div class="avatar">
-      🚀
-    </div>
-
-    <div>
-
-      <small>PILOTE</small>
-
-      <h3 id="profileName">
-        Mineur
-      </h3>
-
-      <p id="profileStatus">
-        Mode local
-      </p>
-
-    </div>
-
-  </div>
-
-
-  <label class="field">
-
-    Pseudo
-
-    <input
-      id="nickname"
-      maxlength="20"
-      placeholder="Mineur"
-      autocomplete="nickname"
-    >
-
-  </label>
-
-
-  <button
-    id="saveProfile"
-    class="wide primary"
-  >
-    Enregistrer le profil
-  </button>
-
-
-  <button
-    id="guestBtn"
-    class="wide secondary"
-  >
-    ☁️ Activer la sauvegarde cloud
-  </button>
-
-
-  <div class="settings-card">
-
-    <b>Progression</b>
-
-    <div>
-      <span>Niveau</span>
-      <strong id="profileLevel">1</strong>
-    </div>
-
-    <div>
-      <span>XP</span>
-      <strong id="profileXp">0</strong>
-    </div>
-
-    <div>
-      <span>Total extrait</span>
-      <strong id="profileTotal">0</strong>
-    </div>
-
-  </div>
-
-
-  <div class="settings-card danger-card">
-
-    <b>Réinitialisation</b>
-
-    <p>
-      Supprime uniquement la sauvegarde
-      locale de ce navigateur.
-    </p>
-
-    <button
-      id="resetBtn"
-      class="danger"
-    >
-      Réinitialiser la partie
-    </button>
-
-  </div>
-
-</section>
-
-
-</main>
-
-
-<!-- =====================================================
-     TOAST
-     ===================================================== -->
-
-<div
-  id="toast"
-  role="status"
-  aria-live="polite"
-></div>
-
-
-<!-- =====================================================
-     NAVIGATION
-     ===================================================== -->
-
-<nav
-  class="bottom-nav"
-  aria-label="Navigation principale"
->
-
-  <button
-    data-go="mine"
-    class="active"
-  >
-    <span>⛏️</span>
-    <small>Mine</small>
-  </button>
-
-
-  <button data-go="buildings">
-    <span>🏗️</span>
-    <small>Bât.</small>
-  </button>
-
-
-  <button data-go="planets">
-    <span>🪐</span>
-    <small>Planètes</small>
-  </button>
-
-
-  <button data-go="research">
-    <span>🧪</span>
-    <small>Tech</small>
-  </button>
-
-
-  <button data-go="missions">
-    <span>🎯</span>
-    <small>Missions</small>
-  </button>
-
-
-  <button data-go="shop">
-    <span>💎</span>
-    <small>Boutique</small>
-  </button>
-
-</nav>
-
-
-<!-- =====================================================
-     MODALE CLOUD
-     ===================================================== -->
-
-<div
-  id="modal"
-  class="modal hidden"
->
-
-  <div class="modal-card">
-
-    <button
-      id="closeModal"
-      class="close"
-    >
-      ×
-    </button>
-
-
-    <h2>
-      ☁️ Compte cloud
-    </h2>
-
-
-    <p id="modalStatus">
-      Connexion…
-    </p>
-
-
-    <button
-      id="modalGuest"
-      class="wide secondary"
-    >
-      Connexion invité
-    </button>
-
-
-    <small>
-      Ton score reste jouable hors ligne.
-      Le cloud sert à synchroniser ta
-      progression et le classement mondial.
-    </small>
-
-  </div>
-
-</div>
-
-
-</div>
-
-
-<!-- =====================================================
-     SCRIPTS
-     ===================================================== -->
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.bottom-nav button').forEach(function(button) {
-    button.addEventListener('click', function() {
-      const name = this.getAttribute('data-go');
-      const screen = document.getElementById('screen-' + name);
-
-      if (!screen) return;
-
-      document.querySelectorAll('.screen').forEach(function(s) {
-        s.classList.remove('active');
-      });
-
-      screen.classList.add('active');
-
-      document.querySelectorAll('.bottom-nav button').forEach(function(b) {
-        b.classList.remove('active');
-      });
-
-      this.classList.add('active');
-
-      window.scrollTo(0, 0);
-    });
-  });
-});
-</script>
-<script src="game.js?v=15"></script>
-<script src="game.js?v=15"></script>
-
-
-<script>
-
-if("serviceWorker" in navigator){
-
-  window.addEventListener("load", async ()=>{
-
-    try{
-
-      const registration =
-        await navigator.serviceWorker.register("./sw.js");
-
-      /*
-       * Demande à Safari de vérifier immédiatement
-       * si le service worker a changé.
-       */
-
-      await registration.update();
-
-    }catch(e){
-
-      console.warn(
-        "Service Worker:",
-        e
-      );
-
-    }
-
-  });
-
-}
-
-</script>
+  <script src="./game.js?v=15"></script>
 
 </body>
-  <div id="clickTest" style="
-  position:fixed;
-  top:10px;
-  left:10px;
-  z-index:999999;
-  background:red;
-  color:white;
-  padding:10px;
-  border-radius:10px;
-">
-  TEST
-</div>
-
-<script>
-document.getElementById('clickTest').onclick = function() {
-  alert('LE CLIC FONCTIONNE');
-};
-</script>
 </html>
