@@ -2390,137 +2390,106 @@ async function resetGame(){
    CLICS
    ========================================================= */
 
-document.addEventListener(
-  'click',
-  e=>{
-    const nav=
-      e.target.closest(
-        '[data-go]'
-      );
+/* =========================================================
+   NAVIGATION ROBUSTE
+   ========================================================= */
 
-    if(nav){
-      e.preventDefault();
+function goToScreen(name) {
+  const screen = document.getElementById('screen-' + name);
 
-      setScreen(
-        nav.dataset.go
-      );
+  if (!screen) {
+    console.warn('Écran introuvable:', name);
+    return;
+  }
 
-      return;
-    }
+  currentScreen = name;
 
-    const world=
-      e.target.closest(
-        '[data-world]'
-      );
+  document.querySelectorAll('.screen').forEach(function (el) {
+    el.classList.toggle('active', el.id === 'screen-' + name);
+  });
 
-    if(world){
-      selectedWorld=
-        Number(
-          world.dataset.world
-        );
+  document.querySelectorAll('.bottom-nav button').forEach(function (btn) {
+    btn.classList.toggle('active', btn.dataset.go === name);
+  });
 
-      renderBuildings();
-      renderPlanets();
-      uiHeader();
+  if (name === 'mine' && typeof renderMine === 'function') {
+    renderMine();
+  }
 
-      return;
-    }
+  if (name === 'buildings' && typeof renderBuildings === 'function') {
+    renderBuildings();
+  }
 
-    const buy=
-      e.target.closest(
-        '[data-buy]'
-      );
+  if (name === 'planets' && typeof renderPlanets === 'function') {
+    renderPlanets();
+  }
 
-    if(buy){
-      buyBuilding(
-        selectedWorld,
-        Number(
-          buy.dataset.buy
-        )
-      );
+  if (name === 'research' && typeof renderResearch === 'function') {
+    renderResearch();
+  }
 
-      return;
-    }
+  if (name === 'missions' && typeof renderMissions === 'function') {
+    renderMissions();
+  }
 
-    const research=
-      e.target.closest(
-        '[data-research]'
-      );
+  if (name === 'shop' && typeof renderShop === 'function') {
+    renderShop();
+  }
 
-    if(research){
-      doResearch(
-        research.dataset.research
-      );
+  if (name === 'rank' && typeof renderRank === 'function') {
+    renderRank();
+  }
 
-      return;
-    }
+  if (name === 'profile' && typeof renderProfile === 'function') {
+    renderProfile();
+  }
 
-    const mission=
-      e.target.closest(
-        '[data-mission]'
-      );
+  if (typeof uiHeader === 'function') {
+    uiHeader();
+  }
 
-    if(mission){
-      claimMission(
-        mission.dataset.mission
-      );
-
-      return;
-    }
-
-    const weekly=
-      e.target.closest(
-        '[data-weekly]'
-      );
-
-    if(weekly){
-      claimWeekly(
-        weekly.dataset.weekly
-      );
-
-      return;
-    }
-
-    const shop=
-      e.target.closest(
-        '[data-shop]'
-      );
-
-    if(shop){
-      buyShop(
-        shop.dataset.shop
-      );
-
-      return;
-    }
-
-    if(
-      e.target.closest(
-        '#prestigeBtn'
-      )
-    ){
-      doPrestige();
-      return;
-    }
-if(
-  e.target.closest(
-    '#mineBtn'
-  )
-){
-  mine();
-  return;
+  window.scrollTo(0, 0);
 }
 
-    if(
-      e.target.closest(
-        '#resetBtn'
-      )
-    ){
-      resetGame();
-      return;
+
+/* Navigation tactile directe */
+document.querySelectorAll('.bottom-nav button[data-go]').forEach(function (button) {
+
+  button.onclick = function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const screen = button.getAttribute('data-go');
+
+    if (screen) {
+      goToScreen(screen);
     }
+
+    return false;
+  };
+
+});
+
+
+/* Navigation par délégation — sécurité supplémentaire */
+document.addEventListener('click', function (event) {
+
+  const button = event.target.closest('.bottom-nav button[data-go]');
+
+  if (!button) {
+    return;
   }
-);
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const screen = button.getAttribute('data-go');
+
+  if (screen) {
+    goToScreen(screen);
+  }
+
+}, true);
 /* =========================================================
    NAVIGATION DIRECTE
    ========================================================= */
