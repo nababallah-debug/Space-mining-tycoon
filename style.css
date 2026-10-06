@@ -1644,54 +1644,203 @@ button{
 
 
 /* =========================================================
-   CORRECTIONS FINALES
+   CORRECTION FORCÉE DES BOUTONS DYNAMIQUES
    ========================================================= */
 
-/* Empêche les éléments dynamiques de casser les cartes */
-.research-card *,
-.mission-card *,
-.shop-card *,
-.building *,
-.planet-card *,
-.rank-row *{
-  max-width:100%;
+/* TECH */
+#screen-research .research-card button.buy{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  width:100% !important;
+  min-height:42px !important;
+
+  background:#142a4d !important;
+  border:1px solid #38598f !important;
+  border-radius:11px !important;
+
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif !important;
+  font-size:14px !important;
+  font-weight:900 !important;
+
+  text-align:center !important;
+  line-height:1.2 !important;
+
+  visibility:visible !important;
+  overflow:visible !important;
+  opacity:1 !important;
 }
 
-/* Les textes restent toujours visibles */
+#screen-research .research-card button.buy span{
+  display:block !important;
+
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+
+  font-size:14px !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+
+  visibility:visible !important;
+  opacity:1 !important;
+  overflow:visible !important;
+}
+
+#screen-research .research-card button.buy:disabled{
+  opacity:.45 !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+
+#screen-research .research-card button.buy:disabled span{
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  opacity:1 !important;
+}
+
+
+/* MISSIONS */
+#screen-missions .mission-card button.buy{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  width:100% !important;
+  min-height:42px !important;
+
+  background:#142a4d !important;
+  border:1px solid #38598f !important;
+  border-radius:11px !important;
+
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif !important;
+  font-size:14px !important;
+  font-weight:900 !important;
+
+  text-align:center !important;
+  line-height:1.2 !important;
+
+  visibility:visible !important;
+  overflow:visible !important;
+  opacity:1 !important;
+}
+
+#screen-missions .mission-card button.buy span{
+  display:block !important;
+
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+
+  font-size:14px !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+
+  visibility:visible !important;
+  opacity:1 !important;
+  overflow:visible !important;
+}
+
+#screen-missions .mission-card button.buy:disabled{
+  opacity:.45 !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+
+#screen-missions .mission-card button.buy:disabled span{
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  opacity:1 !important;
+}
+
+
+/* BOUTIQUE */
+#screen-shop .shop-card button.buy{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  width:100% !important;
+  min-height:42px !important;
+
+  background:#142a4d !important;
+  border:1px solid #38598f !important;
+  border-radius:11px !important;
+
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+
+  font-size:14px !important;
+  font-weight:900 !important;
+
+  visibility:visible !important;
+  overflow:visible !important;
+  opacity:1 !important;
+}
+
+#screen-shop .shop-card button.buy span{
+  display:block !important;
+
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+
+  font-size:14px !important;
+  font-weight:900 !important;
+
+  visibility:visible !important;
+  opacity:1 !important;
+}
+
+
+/* =========================================================
+   PROTECTION CONTRE LES RÈGLES SAFARI
+   ========================================================= */
+
+#screen-research button,
+#screen-missions button,
+#screen-shop button{
+  -webkit-appearance:none !important;
+  appearance:none !important;
+
+  text-indent:0 !important;
+  letter-spacing:normal !important;
+
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif !important;
+
+  visibility:visible !important;
+}
+
+#screen-research button *,
+#screen-missions button *,
+#screen-shop button *{
+  visibility:visible !important;
+  opacity:1 !important;
+}
+
+
+/* =========================================================
+   CARTES
+   ========================================================= */
+
 .research-card,
 .mission-card,
-.shop-card,
-.building,
-.planet-card,
-.rank-row{
-  color:var(--text);
+.shop-card{
+  color:#ffffff !important;
 }
 
-/* Les petits textes gardent leur contraste */
+.research-card strong,
+.mission-card strong,
+.shop-card strong{
+  color:#ffffff !important;
+}
+
 .research-card small,
 .mission-card small,
-.shop-card small,
-.building small,
-.planet-head p,
-.rank-row small{
-  color:var(--muted);
-}
-
-/* Les boutons dynamiques restent lisibles */
-.research-card .buy,
-.mission-card button,
-.shop-card button,
-.building .buy{
-  color:#fff;
-  text-align:center;
-  white-space:normal;
-  overflow:hidden;
-}
-
-/* État désactivé */
-.research-card .buy:disabled,
-.mission-card button:disabled,
-.shop-card button:disabled,
-.building .buy:disabled{
-  opacity:.35;
+.shop-card small{
+  color:#8592aa !important;
 }
