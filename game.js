@@ -281,12 +281,15 @@ function renderLeaderboard(){
  arr.forEach((x,i)=>{const d=document.createElement("div");d.className="world";d.innerHTML=`<div><div class="item-title">${i+1}. ${i===0?"👑 ":""}${x.name}</div><div class="item-sub">Niv. ${x.level} • ⭐ ${x.prestige}</div></div><b>${fmt(x.total)}</b>`;el.appendChild(d)});
  const me=arr.findIndex(x=>x.name===state.nickname);document.getElementById("rank").textContent=me>=0?"#"+(me+1):"—"
 }
-const mineBtn = document.getElementById("mineBtn");
-
-mineBtn.addEventListener("pointerdown", (e) => {
+const mineBtn=document.getElementById("mineBtn");
+mineBtn.addEventListener("pointerdown",(e)=>{
   e.preventDefault();
+  if(e.pointerType==="mouse" && e.button!==0)return;
   mine();
 });
+mineBtn.addEventListener("click",(e)=>e.preventDefault());
+mineBtn.addEventListener("dblclick",(e)=>e.preventDefault());
+mineBtn.addEventListener("contextmenu",(e)=>e.preventDefault());
 document.getElementById("dailyBtn").onclick=daily;
 document.getElementById("saveProfile").onclick=()=>{const v=document.getElementById("nicknameInput").value.trim().replace(/[<>]/g,"").slice(0,18);if(v){state.nickname=v;save();toast("👤 Profil enregistré");closeModals();render()}};
 document.getElementById("exportBtn").onclick=()=>{
@@ -304,3 +307,10 @@ offline();render();save();
 setInterval(()=>{const r=autoRate()/10;gain(r);render()},100);
 setInterval(()=>{save();render()},5000);
 if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
+
+// iPhone anti-zoom protection for rapid mining taps.
+["gesturestart","gesturechange","gestureend"].forEach(type=>{
+  document.addEventListener(type,(e)=>{
+    if(e.target && e.target.closest && e.target.closest("#mineBtn")) e.preventDefault();
+  },{passive:false});
+});
