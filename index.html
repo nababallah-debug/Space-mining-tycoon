@@ -21,45 +21,11 @@
 </header>
 
 <section class="resource-bar">
-  <div class="resource-card money">
-    <span>💰</span>
-    <div>
-      <small>SOLDE</small>
-      <strong id="total">0</strong>
-    </div>
-  </div>
-
-  <div class="resource-card total-resource">
-    <span>📦</span>
-    <div>
-      <small>TOTAL EXTRAIT</small>
-      <strong id="lifetimeTotal">0</strong>
-    </div>
-  </div>
-
-  <div class="resource-card production">
-    <span>⚡</span>
-    <div>
-      <small>PRODUCTION</small>
-      <strong id="rate">0/s</strong>
-    </div>
-  </div>
-
-  <div class="resource-card prestige">
-    <span>👑</span>
-    <div>
-      <small>PRESTIGE</small>
-      <strong id="prestige">P0</strong>
-    </div>
-  </div>
-
-  <div class="resource-card crystals">
-    <span>💎</span>
-    <div>
-      <small>CRISTAUX</small>
-      <strong id="crystals">0</strong>
-    </div>
-  </div>
+  <div><small>SOLDE</small><strong id="total">0</strong></div>
+  <div><small>TOTAL EXTRAIT</small><strong id="lifetimeTotal">0</strong></div>
+  <div><small>PRODUCTION</small><strong id="rate">0/s</strong></div>
+  <div><small>PRESTIGE</small><strong id="prestige">P0</strong></div>
+  <div class="crystal-resource"><small>CRISTAUX</small><strong id="crystals">0</strong> 💎</div>
 </section>
 
 <div id="toast" role="status" aria-live="polite"></div>
@@ -100,12 +66,7 @@
 
 <section id="screen-missions" class="screen"><div class="screen-title"><div><span>OBJECTIFS</span><h2>Missions</h2></div><small id="missionCount">0/43</small></div><div id="missionList"></div><div id="prestigeCard"></div></section>
 
-<section id="screen-shop" class="screen"><div class="screen-title"><div><span>ÉCONOMIE CRISTALLINE</span><h2>Boutique</h2></div><strong class="shop-balance">💎 <span id="shopCrystals">0</span></strong></div><div class="section-note">
-  💎 Les cristaux sont générés automatiquement.
-  Toutes les minutes, une tentative est effectuée avec une chance de
-  <strong>1 sur 1 000</strong>.
-  Le farm continue également hors ligne.
-</div>
+<section id="screen-shop" class="screen"><div class="screen-title"><div><span>ÉCONOMIE CRISTALLINE</span><h2>Boutique</h2></div><strong class="shop-balance">💎 <span id="shopCrystals">0</span></strong></div><div class="section-note">💎 Les cristaux sont rares : ils ont 0,8% de chance de tomber lors d’un minage manuel. Les améliorations sont permanentes et conservées après prestige.</div><div id="shopList"></div></section>
 
 <section id="screen-rank" class="screen"><div class="screen-title"><div><span>GALAXIE</span><h2>Classement mondial</h2></div><button id="refreshRank" class="mini-btn">↻</button></div><div class="rank-me" id="rankMe">☁️ Synchronisation du profil…</div><div id="rankList"></div></section>
 
