@@ -281,7 +281,12 @@ function renderLeaderboard(){
  arr.forEach((x,i)=>{const d=document.createElement("div");d.className="world";d.innerHTML=`<div><div class="item-title">${i+1}. ${i===0?"👑 ":""}${x.name}</div><div class="item-sub">Niv. ${x.level} • ⭐ ${x.prestige}</div></div><b>${fmt(x.total)}</b>`;el.appendChild(d)});
  const me=arr.findIndex(x=>x.name===state.nickname);document.getElementById("rank").textContent=me>=0?"#"+(me+1):"—"
 }
-document.getElementById("mineBtn").onclick=mine;
+const mineBtn = document.getElementById("mineBtn");
+
+mineBtn.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  mine();
+});
 document.getElementById("dailyBtn").onclick=daily;
 document.getElementById("saveProfile").onclick=()=>{const v=document.getElementById("nicknameInput").value.trim().replace(/[<>]/g,"").slice(0,18);if(v){state.nickname=v;save();toast("👤 Profil enregistré");closeModals();render()}};
 document.getElementById("exportBtn").onclick=()=>{
