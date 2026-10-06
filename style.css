@@ -36,6 +36,48 @@ body{
   color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;
   -webkit-user-select:none;
+
+  /* =====================================================
+   FIX — TEXTE DES BOUTONS TECH / MISSIONS / BOUTIQUE
+   ===================================================== */
+
+#screen-research button,
+#screen-missions button,
+#screen-shop button{
+  color:var(--text) !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  line-height:1.2 !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  text-indent:0 !important;
+}
+
+#screen-research button *,
+#screen-missions button *,
+#screen-shop button *{
+  color:inherit !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+
+#screen-research .card,
+#screen-missions .card,
+#screen-shop .card{
+  color:var(--text) !important;
+}
+
+#screen-research small,
+#screen-missions small,
+#screen-shop small{
+  color:var(--muted) !important;
+}
+
+#screen-research strong,
+#screen-missions strong,
+#screen-shop strong{
+  color:var(--text) !important;
+}
   user-select:none;
   overscroll-behavior:none;
   -webkit-overflow-scrolling:touch;
