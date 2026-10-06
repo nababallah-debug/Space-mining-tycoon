@@ -85,7 +85,46 @@ async function ensureAuth(){if(!sb)throw new Error('SDK cloud indisponible');con
 async function syncCloud(force=false){if(syncing||(!force&&Date.now()-lastCloud<12000)||!sb)return;syncing=true;lastCloud=Date.now();try{await ensureAuth();const {error}=await sb.functions.invoke('game-sync',{body:{nickname:s.nickname,total:s.lifetimeTotal,prestige:s.prestige,level:s.level,xp:s.xp,state:s}});if(error)throw error;s.online=true;}catch(e){s.online=false;}finally{syncing=false;uiHeader();}}
 async function loadCloud(){if(!sb)return;try{const session=await ensureAuth();const {data,error}=await sb.from('player_state').select('state').eq('user_id',session.user.id).maybeSingle();if(error)throw error;if(data?.state&&Number(data.state.lifetimeTotal||data.state.total||0)>s.lifetimeTotal){const nick=s.nickname;s=Object.assign(fresh(),data.state);s.nickname=s.nickname||nick;}s.online=true;save();uiHeader();await syncCloud(true);}catch(e){s.online=false;uiHeader();}}
 async function saveProfile(){s.nickname=(document.getElementById('nickname').value.trim()||'Mineur').slice(0,20);save();await syncCloud(true);toast(s.online?'☁️ Profil publié':'📱 Profil local');renderProfile();}
-async function resetGame(){if(!confirm('Réinitialiser toute la progression locale et cloud ? Cette action est irréversible.'))return;try{if(sb){try{await ensureAuth();await sb.functions.invoke('game-sync',{body:{action:'reset'}});}catch(e){console.warn('Cloud reset indisponible',e);}}LEGACY_KEYS.forEach(k=>localStorage.removeItem(k));localStorage.removeItem('sm-world');sessionStorage.clear();if('caches' in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}}catch(e){console.warn('Reset local',e);}location.replace(location.pathname+'?reset='+Date.now());}
+async function resetGame(){
+  if(!confirm('Réinitialiser toute la progression ? Cette action est irréversible.')) return;
+
+  // 1. Bloquer toute sauvegarde pendant le reset
+  syncing = true;
+
+  // 2. Reset cloud Supabase
+  if(sb){
+    try{
+      await ensureAuth();
+      const {error} = await sb.functions.invoke('game-sync',{
+        body:{action:'reset'}
+      });
+      if(error) console.warn('Cloud reset:',error);
+    }catch(e){
+      console.warn('Cloud reset indisponible:',e);
+    }
+  }
+
+  // 3. Effacer TOUTES les données du jeu sur ce site
+  try{
+    localStorage.clear();
+    sessionStorage.clear();
+  }catch(e){
+    console.warn('Storage reset:',e);
+  }
+
+  // 4. Effacer les caches du jeu
+  try{
+    if('caches' in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.map(k=>caches.delete(k)));
+    }
+  }catch(e){
+    console.warn('Cache reset:',e);
+  }
+
+  // 5. Recharger complètement le jeu
+  location.href=location.pathname+'?newgame='+Date.now();
+}
 function esc(x){return String(x).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='mineBtn'){e.preventDefault();mine();return;}if(b.dataset.go){e.preventDefault();setScreen(b.dataset.go);return;}if(b.dataset.world){const i=Number(b.dataset.world);if(planetUnlocked(i)){selectedWorld=i;localStorage.setItem('sm-world',String(i));if(currentScreen==='buildings')renderBuildings();else if(currentScreen==='planets')renderPlanets();}else toast('🔒 Planète verrouillée');return;}if(b.dataset.buy!==undefined){buyBuilding(Number(b.dataset.buy));return;}if(b.dataset.research){doResearch(b.dataset.research);return;}if(b.dataset.mission){claimMission(b.dataset.mission);return;}if(b.dataset.weekly){claimWeekly(b.dataset.weekly);return;}if(b.dataset.prestige){doPrestige();return;}if(b.id==='refreshRank'){renderRank();return;}if(b.id==='accountBtn'){setScreen('profile');return;}if(b.id==='saveProfile'){saveProfile();return;}if(b.id==='guestBtn'){ensureAuth().then(()=>{s.online=true;syncCloud(true);toast('☁️ Classement mondial activé');}).catch(()=>toast('⚠️ Active Anonymous Sign-Ins dans Supabase'));return;}if(b.id==='resetBtn'){resetGame();return;}if(b.id==='closeModal'){document.getElementById('modal')?.classList.add('hidden');return;}},{passive:false});
