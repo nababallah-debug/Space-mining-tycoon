@@ -209,7 +209,8 @@ function clickPower(){return prestigeMult()*globalMult()*clickMult()*(1+Math.min
 function baseProd(w,b){
   const earlyBoost=Math.max(1,2-b*.08);
   const lateBoost=w>=12?Math.pow(1.16,w-11):1;
-  return (1.1+.18*w)*3.2**w*2.0**b*earlyBoost*lateBoost;
+
+  return 10 * (1.1+.18*w) * 3.2**w * 2.0**b * earlyBoost * lateBoost;
 }
 function buildingCost(w,b){
   const n=s.buildings[w+'-'+b]||0;
