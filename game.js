@@ -249,7 +249,7 @@ function baseProd(w,b){
 }
 function buildingCost(w,b){
 const n=s.buildings[w+'-'+b]||0;
-return (500*Math.pow(28,w)*Math.pow(5.5,b)*Math.pow(1.16,n)*costMult())/5;
+return (500*Math.pow(28,w)*Math.pow(5.5,b)*Math.pow(1.16,n)*costMult())*3/5;
 }
 function autoRate(){
 let r=0;
