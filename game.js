@@ -957,11 +957,12 @@ function upgradeClick(){
   toast(
     '⛏️ Clic niveau '+
     s.clickLevel+
-    ' · +'+
+    ' · Nouveau gain : +'+
     fmt(clickPower())
   );
 
-  renderModern();
+  renderMineScreen();
+  uiHeader();
   syncCloud(true);
 }
 
@@ -1625,6 +1626,11 @@ async function renderRank(){
       '<div class="section-note">⚠️ Le cloud est indisponible.</div>';
   }
 }
+
+document.body.insertAdjacentHTML(
+  'afterbegin',
+  modernHTML()
+);
 
 function shopCost(id){
   const x=
@@ -2503,40 +2509,62 @@ function setScreen(name){
 
   currentScreen=name;
 
-  document.querySelectorAll(
+  const app=
+    document.getElementById(
+      'sm-modern-app'
+    );
+
+  if(!app)return;
+
+  app.querySelectorAll(
     '[data-screen]'
-  ).forEach(
-    e=>{
-      e.classList.toggle(
-        'active',
-        e.dataset.screen===name
-      );
-    }
-  );
+  ).forEach(e=>{
+    e.classList.toggle(
+      'active',
+      e.dataset.screen===name
+    );
+  });
 
-  document.querySelectorAll(
-    '[data-go]'
-  ).forEach(
-    e=>{
-      if(
-        e.closest('.bottom-nav')||
-        e.closest('.top-tabs')
-      ){
-        e.classList.toggle(
-          'active',
-          e.dataset.go===name
-        );
-      }
-    }
-  );
+  app.querySelectorAll(
+    '.bottom-nav button'
+  ).forEach(e=>{
+    e.classList.toggle(
+      'active',
+      e.dataset.go===name
+    );
+  });
 
-  if(name==='buildings')renderBuildings();
-  if(name==='planets')renderPlanets();
-  if(name==='research')renderResearch();
-  if(name==='missions')renderMissions();
-  if(name==='shop')renderShop();
-  if(name==='rank')renderRank();
-  if(name==='profile')renderProfile();
+  if(name==='mine'){
+    renderMineScreen();
+  }
+
+  if(name==='buildings'){
+    renderBuildings();
+  }
+
+  if(name==='planets'){
+    renderPlanets();
+  }
+
+  if(name==='research'){
+    renderResearch();
+  }
+
+  if(name==='missions'){
+    renderMissions();
+  }
+
+  if(name==='shop'){
+    renderShop();
+  }
+
+  if(name==='rank'){
+    renderRank();
+  }
+
+  if(name==='profile'){
+    renderProfile();
+  }
 
   uiHeader();
 
@@ -2694,6 +2722,19 @@ function renderMine(){
       </p>
     </div>
   `;
+}
+function renderMineScreen(){
+  const screen=document.querySelector(
+    '#sm-modern-app [data-screen="mine"]'
+  );
+
+  if(!screen)return;
+
+  screen.innerHTML=renderMine();
+
+  screen.classList.add('active');
+
+  uiHeader();
 }
 
 function modernHTML(){
@@ -3722,21 +3763,88 @@ function injectModernCSS(){
 }
 
 function renderModern(){
-  const old=
+  let app=
     document.getElementById(
       'sm-modern-app'
     );
 
-  if(!old){
+  /*
+   * IMPORTANT :
+   * L'ancien index.html contient encore
+   * l'ancienne interface.
+   *
+   * On la retire AVANT de créer la nouvelle.
+   */
+  if(!app){
+
+    /*
+     * Anciennes sections de l'interface
+     */
+    document.querySelectorAll(
+      '.screen'
+    ).forEach(el=>{
+      el.remove();
+    });
+
+    /*
+     * Anciennes navigations
+     */
+    document.querySelectorAll(
+      '.bottom-nav'
+    ).forEach(el=>{
+      el.remove();
+    });
+
+    /*
+     * Ancien quick-grid / raccourcis
+     */
+    document.querySelectorAll(
+      '.quick-grid'
+    ).forEach(el=>{
+      el.remove();
+    });
+
+    /*
+     * Certains anciens conteneurs peuvent
+     * encore rester dans l'index.
+     *
+     * On retire uniquement les éléments
+     * clairement liés à l'ancienne interface.
+     */
+    [
+      'screen-mine',
+      'screen-buildings',
+      'screen-planets',
+      'screen-research',
+      'screen-missions',
+      'screen-shop',
+      'screen-rank',
+      'screen-profile'
+    ].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el)el.remove();
+    });
+
     document.body.insertAdjacentHTML(
       'afterbegin',
       modernHTML()
     );
+
+    app=
+      document.getElementById(
+        'sm-modern-app'
+      );
   }
 
   injectModernCSS();
 
-  uiHeader();
+  /*
+   * On reconstruit l'écran Mine après
+   * chaque changement important.
+   */
+  if(currentScreen==='mine'){
+    renderMineScreen();
+  }
 
   if(currentScreen==='buildings'){
     renderBuildings();
@@ -3766,27 +3874,25 @@ function renderModern(){
     renderProfile();
   }
 
-  document.querySelectorAll(
-    '[data-screen]'
-  ).forEach(
-    e=>{
-      e.classList.toggle(
-        'active',
-        e.dataset.screen===currentScreen
-      );
-    }
-  );
+  uiHeader();
 
   document.querySelectorAll(
-    '.bottom-nav button'
-  ).forEach(
-    e=>{
-      e.classList.toggle(
-        'active',
-        e.dataset.go===currentScreen
-      );
-    }
-  );
+    '#sm-modern-app [data-screen]'
+  ).forEach(e=>{
+    e.classList.toggle(
+      'active',
+      e.dataset.screen===currentScreen
+    );
+  });
+
+  document.querySelectorAll(
+    '#sm-modern-app .bottom-nav button'
+  ).forEach(e=>{
+    e.classList.toggle(
+      'active',
+      e.dataset.go===currentScreen
+    );
+  });
 }
 
 document.addEventListener(
