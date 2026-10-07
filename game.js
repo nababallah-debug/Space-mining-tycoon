@@ -73,6 +73,80 @@ const WEEKLY=[
  ['week_world','Explorateur','planet',3,500000000]
 ];
 
+const DAILY_REWARDS=[50000000,100000000,500000000,1000000000];
+
+const DAILY_TEMPLATES=[
+  ['daily_clicks','Frénésie de forage','clics'],
+  ['daily_earn','Mineur acharné','earn'],
+  ['daily_build','Constructeur spatial','buildings'],
+  ['daily_spend','Investisseur galactique','spend'],
+  ['daily_auto','Production intensive','auto'],
+  ['daily_planet','Explorateur spatial','planet'],
+  ['daily_level','Progression rapide','level']
+];
+
+function dailyKey(d=new Date()){
+  return d.getFullYear()+'-'+
+    String(d.getMonth()+1).padStart(2,'0')+'-'+
+    String(d.getDate()).padStart(2,'0');
+}
+
+function generateDailyMissions(){
+  const key=dailyKey();
+  const seed=Number(
+    key.replace(/-/g,'')
+  );
+
+  // Mélange déterministe : les mêmes missions pendant toute la journée
+  const pool=[...DAILY_TEMPLATES];
+
+  for(let i=pool.length-1;i>0;i--){
+    const j=(seed*(i+3)+i*17)% (i+1);
+    [pool[i],pool[j]]=[pool[j],pool[i]];
+  }
+
+  const difficulties=[
+    {need:1000},
+    {need:500000000},
+    {need:2500000000},
+    {need:10000000000}
+  ];
+
+  const missions=[];
+
+  for(let i=0;i<4;i++){
+    const t=pool[i];
+    let need=difficulties[i].need;
+
+    if(t[2]==='clics'){
+      need=[150,300,750,1500][i];
+    }else if(t[2]==='earn'){
+      need=[10000000,50000000,250000000,1000000000][i];
+    }else if(t[2]==='buildings'){
+      need=[3,8,20,40][i];
+    }else if(t[2]==='spend'){
+      need=[10000000,50000000,250000000,1000000000][i];
+    }else if(t[2]==='auto'){
+      need=[30000000,100000000,500000000,2000000000][i];
+    }else if(t[2]==='planet'){
+      need=[1,2,3,4][i];
+    }else if(t[2]==='level'){
+      need=[2,4,7,10][i];
+    }
+
+    missions.push({
+      id:t[0]+'_'+key+'_'+i,
+      title:t[1],
+      type:t[2],
+      need:need,
+      reward:DAILY_REWARDS[i],
+      claimed:false
+    });
+  }
+
+  return missions;
+}
+
 const TECH_BY_ID=Object.fromEntries(TECH.map(x=>[x[0],x]));
 let s;
 
@@ -149,6 +223,11 @@ function fresh(){
     offlineLast:0,
     online:false
   };
+
+    daily:{
+    key:dailyKey(),
+    missions:[]
+  },
 }
 
 function buildingList(w){ return w<12?BUILDINGS:LATE_BUILDINGS; }
@@ -173,7 +252,94 @@ function migrateState(z){
   z.nickname=(z.nickname||'Mineur').slice(0,20);
   z.xp=Math.max(0,Number(z.xp)||0); z.level=Math.max(1,Number(z.level)||1);
   z.prestige=Math.max(0,Number(z.prestige)||0); z.prestigeShards=Math.max(0,Number(z.prestigeShards)||0);
+  z.daily=z.daily||{
+  key:dailyKey(),
+  missions:[]
+};
+
+if(z.daily.key!==dailyKey()){
+  z.daily={
+    key:dailyKey(),
+    missions:generateDailyMissions()
+  };
+}
+
+if(!Array.isArray(z.daily.missions)||z.daily.missions.length!==4){
+  z.daily.missions=generateDailyMissions();
+}
   return z;
+}
+
+function ensureDaily(){
+  const key=dailyKey();
+
+  if(!s.daily||s.daily.key!==key){
+    s.daily={
+      key:key,
+      missions:generateDailyMissions()
+    };
+
+    save();
+  }
+
+  if(!Array.isArray(s.daily.missions)||s.daily.missions.length!==4){
+    s.daily.missions=generateDailyMissions();
+    save();
+  }
+}
+
+function dailyValue(m){
+  switch(m.type){
+    case 'clics':
+      return s.cLICKS;
+
+    case 'earn':
+      return s.runTotal;
+
+    case 'buildings':
+      return totalBuildings();
+
+    case 'spend':
+      return s.spent;
+
+    case 'auto':
+      return s.runTotal;
+
+    case 'planet':
+      return WORLDS.slice(0,m.need+1)
+        .filter((_,i)=>planetDone(i)).length;
+
+    case 'level':
+      return s.level;
+
+    default:
+      return 0;
+  }
+}
+function claimDaily(id){
+  ensureDaily();
+
+  const m=s.daily.missions.find(x=>x.id===id);
+
+  if(!m||m.claimed)return;
+
+  const value=dailyValue(m);
+
+  if(value<m.need){
+    toast('🎯 Mission quotidienne non terminée');
+    return;
+  }
+
+  m.claimed=true;
+
+  earn(m.reward);
+  save();
+
+  toast('🌅 Mission quotidienne : +'+fmt(m.reward));
+
+  renderMissions();
+  uiHeader();
+  syncCloud(true);
 }
 
 function load(){
@@ -357,7 +523,45 @@ function renderMissions(){
   list.innerHTML=`<div class="mission-section"><h3>📜 Campagne</h3>${MISSION_BASE.map(m=>missionCard(m,false)).join('')}</div>
   <div class="mission-section"><h3>🌍 Missions planétaires</h3>${PLANET_MISSIONS.map(m=>missionCard(m,false)).join('')}</div>
   <div class="mission-section"><h3>📅 Quêtes hebdomadaires <small>semaine du ${s.weekly.key}</small></h3>${WEEKLY.map(m=>missionCard(m,true)).join('')}</div><div id="prestigeCard"></div>`;
-  renderPrestige();setText('missionCount',Object.keys(s.missions).length+' / '+(MISSION_BASE.length+PLANET_MISSIONS.length));
+  ensureDaily();
+
+const dailyBox=document.createElement('div');
+dailyBox.className='mission-section';
+
+dailyBox.innerHTML=
+  '<h3>☀️ Missions quotidiennes <small>'+s.daily.key+'</small></h3>'+
+  s.daily.missions.map(m=>{
+    const value=dailyValue(m);
+    const pct=Math.min(100,value/m.need*100);
+
+    return `
+      <article class="mission-card">
+        <div class="mission-top">
+          <strong>${m.claimed?'✅':'☀️'} ${m.title}</strong>
+          <span>${fmt(m.reward)}</span>
+        </div>
+
+        <small>${fmt(value)} / ${fmt(m.need)}</small>
+
+        <div class="bar">
+          <i style="width:${pct}%"></i>
+        </div>
+
+        <button
+          class="buy"
+          data-daily="${m.id}"
+          ${m.claimed||value<m.need?'disabled':''}>
+          ${m.claimed?'RÉCLAMÉ':'RÉCLAMER'}
+        </button>
+      </article>
+    `;
+  }).join('');
+
+const missionList=document.getElementById('missionList');
+if(missionList){
+  const first=missionList.firstElementChild;
+  missionList.insertBefore(dailyBox,first);
+}renderPrestige();setText('missionCount',Object.keys(s.missions).length+' / '+(MISSION_BASE.length+PLANET_MISSIONS.length));
 }
 function missionCard(m,weekly){
   const id=m[0],claimed=weekly?s.weekly.claimed[id]:s.missions[id],v=weekly?weeklyValue(m):missionValue(m),need=m[3],pct=Math.min(100,v/need*100);
@@ -566,6 +770,10 @@ document.addEventListener('click',e=>{
   if(b.dataset.research){doResearch(b.dataset.research);return;}
   if(b.dataset.mission){claimMission(b.dataset.mission);return;}
   if(b.dataset.weekly){claimWeekly(b.dataset.weekly);return;}
+  if(b.dataset.daily){
+  claimDaily(b.dataset.daily);
+  return;
+}
   if(b.dataset.prestige){doPrestige();return;}
   if(b.dataset.shop){buyShop(b.dataset.shop);return;}
   if(b.id==='refreshRank'){renderRank();return;}
@@ -580,6 +788,7 @@ document.addEventListener('pointerup',e=>{if(e.target.closest('#mineBtn'))e.prev
 setInterval(()=>{
   checkEvents();
   ensureWeekly();
+  ensureDaily();
 
   // 💎 Farm automatique des cristaux
   crystalAutoFarm();
