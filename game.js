@@ -241,14 +241,14 @@ function baseProd(w,b){
 }
 function buildingCost(w,b){
   const n=s.buildings[w+'-'+b]||0;
-  return 500*Math.pow(28,w)*Math.pow(5.5,b)*Math.pow(1.16,n)*costMult();
+  return (500*Math.pow(28,w)*Math.pow(5.5,b)*Math.pow(1.16,n)*costMult())/5;
 }
 function autoRate(){
   let r=0;
   WORLDS.forEach((_,w)=>buildingList(w).forEach((_,b)=>{
     r+=(s.buildings[w+'-'+b]||0)*baseProd(w,b)*WORLDS[w][3];
   }));
-  return r*prestigeMult()*globalMult()*autoMult()*incomeMult();
+  return r*prestigeMult()*globalMult()*autoMult()*incomeMult()*3;
 }
 
 function levelCheck(){
