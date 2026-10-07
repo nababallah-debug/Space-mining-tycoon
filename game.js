@@ -1,3 +1,8 @@
+const persistSession=true;
+const autoRefreshToken=true;
+const detectSessionInUrl=false;
+const passive=false;
+
 const SUPABASE_URL='https://gvyeooqemajnvfbgnagv.supabase.co';
 const SUPABASE_KEY='sb_publishable_moYDSTJplgl9XPCiKR96b_CPt3MJ7z';
 
@@ -113,8 +118,8 @@ const SHOP_ITEMS=[
 function fresh(){
 const buildings={};
 
-WORLDS.forEach((,w)=>{
-BUILDINGS.forEach((,b)=>{
+WORLDS.forEach((_,w)=>{
+BUILDINGS.forEach((_,b)=>{
 buildings[w+'-'+b]=0;
 });
 });
@@ -137,6 +142,8 @@ weekly:{
   claimed:{},
   progress:{}
 },
+shopUpgrades:{},
+event:{nextAt:0,current:null,activeUntil:0},
 
 xp:0,
 level:1,
@@ -152,7 +159,7 @@ online:false
 };
 }
 
-function buildingList(w){ return w<12?BUILDINGS; }
+function buildingList(w){ return w<12?BUILDINGS:LATE_BUILDINGS; }
 
 function migrateState(z){
 const base=fresh();
@@ -202,54 +209,54 @@ if(!Number.isFinite(n))return '∞';
 if(Math.abs(n)<1000)return Math.floor(n).toLocaleString('fr-FR');
 const units=['K','M','Md','Bn','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td','Qad','Qid'];
 const i=Math.floor(Math.log10(Math.abs(n))/3);
-return (n/10**(i3)).toFixed(i>=5?2:1)+' '+(units[i-1]||('e'+i3));
+return (n/10**(i*3)).toFixed(i>=5?2:1)+' '+(units[i-1]||('e'+(i*3)));
 }
 
 function weekKey(d=new Date()){
 const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
 const day=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()-day+1);return x.toISOString().slice(0,10);
 }
-function ensureWeekly(){if(s.weekly.key!==weekKey()){s.weekly={key(),claimed:{},progress:{}};save();}}
+function ensureWeekly(){if(s.weekly.key!==weekKey()){s.weekly={key:weekKey(),claimed:{},progress:{}};save();}}
 
 function tech(id){return !!s.research[id];}
 function shopLevel(id){return Math.max(0,Number(s.shopUpgrades?.[id])||0);}
 function shopMult(id,base){return Math.pow(base,shopLevel(id));}
 
 function globalMult(){
-let m=1+(.18s.prestige)(tech('ascension')?1.5:1);
+let m=1+(0.18*s.prestige)*(tech('ascension')?1.5:1);
 for(const id of['reactor','fusion','antimatter','singularity','deep','void'])if(tech(id))m*=TECH_BY_ID[id][5];
-return mshopMult('prod',1.04)eventMultiplier('global');
+return m*shopMult('prod',1.04)*eventMultiplier('global');
 }
 function autoMult(){let m=1;for(const id of['ai','nano','dyson','quantum'])if(tech(id))m=TECH_BY_ID[id][5];return m;}
 function clickMult(){
 let m=1;if(tech('laser'))m=1.5;if(tech('drill'))m*=2;if(tech('gravity'))m*=3;
-return mshopMult('click',1.05)eventMultiplier('click');
+return m*shopMult('click',1.05)*eventMultiplier('click');
 }
-function incomeMult(){let m=1;if(tech('market'))m=1.2;if(tech('entropy'))m=1.5;return meventMultiplier('income');}
+function incomeMult(){let m=1;if(tech('market'))m=1.2;if(tech('entropy'))m=1.5;return m*eventMultiplier('income');}
 function costMult(){
 let m=1;if(tech('logistics'))m=.92;if(tech('economy'))m*=.85;
-return mshopMult('discount',.99)eventMultiplier('cost');
+return m*shopMult('discount',.99)*eventMultiplier('cost');
 }
 function offlineCap(){if(tech('time'))return 172800;if(tech('chrono'))return 86400;return 14400;}
-function prestigeMult(){return (1+(.18s.prestige)(tech('ascension')?1.5:1))*shopMult('prestige',1.02);}
-function clickPower(){return prestigeMult()globalMult()clickMult()(1+Math.min(.75,s.combo.03));}
+function prestigeMult(){return (1+(0.18*s.prestige)*(tech('ascension')?1.5:1))*shopMult('prestige',1.02);}
+function clickPower(){return prestigeMult()*globalMult()*clickMult()*(1+Math.min(.75,s.combo*0.03));}
 
 function baseProd(w,b){
 const earlyBoost=Math.max(1,2-b*.08);
 const lateBoost=w>=12?Math.pow(1.16,w-11):1;
 
-return 10 * (1.1+.18w) * 3.2w * 2.0b * earlyBoost * lateBoost;
+return 10 * (1.1+0.18*w) * Math.pow(3.2,w) * Math.pow(2.0,b) * earlyBoost * lateBoost;
 }
 function buildingCost(w,b){
 const n=s.buildings[w+'-'+b]||0;
-return (500Math.pow(28,w)*Math.pow(5.5,b)*Math.pow(1.16,n)*costMult())/5;
+return (500*Math.pow(28,w)*Math.pow(5.5,b)*Math.pow(1.16,n)*costMult())/5;
 }
 function autoRate(){
 let r=0;
-WORLDS.forEach((,w)=>buildingList(w).forEach((,b)=>{
-r+=(s.buildings[w+'-'+b]||0)*baseProd(w,b)WORLDS[w][3];
+WORLDS.forEach((_,w)=>buildingList(w).forEach((_,b)=>{
+r+=(s.buildings[w+'-'+b]||0)*baseProd(w,b)*WORLDS[w][3];
 }));
-return rprestigeMult()*globalMult()*autoMult()*incomeMult()*3;
+return r*prestigeMult()*globalMult()*autoMult()*incomeMult()*3;
 }
 
 function levelCheck(){
@@ -267,9 +274,9 @@ function totalBuildings(){return Object.values(s.buildings).reduce((a,b)=>a+(Num
 function planetUnlocked(w){
 if(w===0)return true;
 const prev=w-1;
-return buildingList(prev).every((,b)=>(s.buildings[prev+'-'+b]||0)>=1);
+return buildingList(prev).every((_,b)=>(s.buildings[prev+'-'+b]||0)>=1);
 }
-function planetLevels(w){return buildingList(w).reduce((a,,b)=>a+(s.buildings[w+'-'+b]||0),0);}
+function planetLevels(w){return buildingList(w).reduce((a,_,b)=>a+(s.buildings[w+'-'+b]||0),0);}
 function planetDone(w){return planetUnlocked(w)&&buildingList(w).every((_,b)=>(s.buildings[w+'-'+b]||0)>=10);}
 function goalText(){
 for(let i=1;i<WORLDS.length;i++)if(!planetUnlocked(i))
@@ -279,16 +286,27 @@ return 'Toutes les planètes sont accessibles. Maîtrise-les avec 10 de chaque b
 
 function missionValue(m){
 switch(m[2]){
-case 'clics' s.cLICKS;case 'lifetime' s.lifetimeTotal;case 'run' s.runTotal;
-case 'buildings' totalBuildings();case 'prestige' s.prestige;case 'tech' Object.keys(s.research).length;
-case 'level' s.level;case 'planet' m[3]<=WORLDS.length-1&&planetDone(m[3])?m[3]:0;case 'spend' s.spent;default 0;
+case 'clics': return s.cLICKS;
+case 'lifetime': return s.lifetimeTotal;
+case 'run': return s.runTotal;
+case 'buildings': return totalBuildings();
+case 'prestige': return s.prestige;
+case 'tech': return Object.keys(s.research).length;
+case 'level': return s.level;
+case 'planet': return m[3]<=WORLDS.length-1&&planetDone(m[3])?m[3]:0;
+case 'spend': return s.spent;
+default: return 0;
 }
 }
 function weeklyValue(m){
 ensureWeekly();
 switch(m[2]){
-case 'clicks' s.cLICKS;case 'buildings' totalBuildings();case 'run' s.runTotal;case 'spend' s.spent;
-case 'planet' WORLDS.slice(0,m[3]+1).filter((_,i)=>planetDone(i)).length;default 0;
+case 'clicks': return s.cLICKS;
+case 'buildings': return totalBuildings();
+case 'run': return s.runTotal;
+case 'spend': return s.spent;
+case 'planet': return WORLDS.slice(0,m[3]+1).filter((_,i)=>planetDone(i)).length;
+default: return 0;
 }
 }
 
@@ -324,14 +342,13 @@ uiHeader();window.scrollTo({top:0,behavior:'auto'});
 }
 
 function worldStrip(){
-return WORLDS.map((w,i)=><button class="planet-chip ${i===selectedWorld?'active ':''}${planetUnlocked(i)?'':'locked'}" data-world="${i}">
-    <strong>${w[0]} ${w[1]}</strong><small>${planetUnlocked(i)?'x'+w[3]:'🔒 '+fmt(w[2])}</small></button>).join('');
+return WORLDS.map((w,i)=>`<button class="planet-chip ${i===selectedWorld?'active ':''}${planetUnlocked(i)?'':'locked'}" data-world="${i}">
+    <strong>${w[0]} ${w[1]}</strong><small>${planetUnlocked(i)?'x'+w[3]:'🔒 '+fmt(w[2])}</small></button>`).join('');
 }
-
 function renderBuildings(){
 const strip=document.getElementById('buildingWorlds');if(strip)strip.innerHTML=worldStrip();
 const w=WORLDS[selectedWorld],detail=document.getElementById('buildingDetail');if(!detail)return;
-if(!planetUnlocked(selectedWorld)){detail.innerHTML=<div class="planet-card locked-card"><div class="big-icon">🔒</div><h3>${w[0]} ${w[1]}</h3><p>Construis au moins 1 exemplaire de chacun des ${buildingList(selectedWorld-1)?.length||12} bâtiments sur ${WORLDS[selectedWorld-1]?.[1]||'la planète précédente'} pour ouvrir cette planète.</p></div>;return;}
+if(!planetUnlocked(selectedWorld)){detail.innerHTML=`<div class="planet-card locked-card"><div class="big-icon">🔒</div><h3>${w[0]} ${w[1]}</h3><p>Construis au moins 1 exemplaire de chacun des ${buildingList(selectedWorld-1)?.length||12} bâtiments sur ${WORLDS[selectedWorld-1]?.[1]||'la planète précédente'} pour ouvrir cette planète.</p></div>`;return;}
 const list=buildingList(selectedWorld);
 detail.innerHTML=`<div class="building-balance"><div><small>SOLDE DISPONIBLE</small><strong>${fmt(s.money)}</strong></div><div><small>PRODUCTION</small><strong>${fmt(autoRate())}/s</strong></div></div>
 
@@ -344,13 +361,13 @@ detail.innerHTML=`<div class="building-balance"><div><small>SOLDE DISPONIBLE</sm
 function renderPlanets(){
 const strip=document.getElementById('planetStrip'),detail=document.getElementById('planetDetail');if(!strip||!detail)return;
 strip.innerHTML=worldStrip();const w=WORLDS[selectedWorld],ok=planetUnlocked(selectedWorld),lv=planetLevels(selectedWorld),count=buildingList(selectedWorld).length;
-detail.innerHTML=ok?<article class="planet-card"><div class="planet-head"><div><h3>${w[0]} ${w[1]}</h3><p>Multiplicateur x${w[3]} · ${lv}/${count*10} niveaux</p></div><span class="badge">${planetDone(selectedWorld)?'COMPLÈTE':'ACTIVE'}</span></div><div class="progress"><i style="width:${Math.min(100,lv/(count*10)*100)}%"></i></div><button class="wide secondary" data-go="buildings">🏗️ Ouvrir les bâtiments</button></article>:<div class="planet-card locked-card"><div class="big-icon">🔒</div><h3>${w[0]} ${w[1]}</h3><p>🔒 Pour l’ouvrir : 1 de chacun des ${buildingList(selectedWorld-1)?.length||12} bâtiments sur ${WORLDS[selectedWorld-1]?.[1]||'la planète précédente'}.</p></div>;
+detail.innerHTML=ok?`<article class="planet-card"><div class="planet-head"><div><h3>${w[0]} ${w[1]}</h3><p>Multiplicateur x${w[3]} · ${lv}/${count*10} niveaux</p></div><span class="badge">${planetDone(selectedWorld)?'COMPLÈTE':'ACTIVE'}</span></div><div class="progress"><i style="width:${Math.min(100,lv/(count*10)*100)}%"></i></div><button class="wide secondary" data-go="buildings">🏗️ Ouvrir les bâtiments</button></article>`:`<div class="planet-card locked-card"><div class="big-icon">🔒</div><h3>${w[0]} ${w[1]}</h3><p>🔒 Pour l’ouvrir : 1 de chacun des ${buildingList(selectedWorld-1)?.length||12} bâtiments sur ${WORLDS[selectedWorld-1]?.[1]||'la planète précédente'}.</p></div>`;
 }
 
 function renderResearch(){
 const list=document.getElementById('researchList');if(!list)return;
-list.innerHTML=TECH.map((t,i)=>{const owned=tech(t[0]),prev=i?TECH[i-1][0],available=!prev||tech(prev);
-return <article class="research-card ${available?'':'locked-tech'}"><div><span>${owned?'✅':available?'🧪':'🔒'}</span><strong>${t[1]}</strong><small>${t[3]}</small></div><button class="buy" data-research="${t[0]}" ${owned||!available||s.money<t[2]?'disabled':''}>${owned?'ACQUISE':available?fmt(t[2]):'VERROUILLÉE'}</button></article>;
+list.innerHTML=TECH.map((t,i)=>{const owned=tech(t[0]),prev=i?TECH[i-1][0]:null,available=!prev||tech(prev);
+return `<article class="research-card ${available?'':'locked-tech'}"><div><span>${owned?'✅':available?'🧪':'🔒'}</span><strong>${t[1]}</strong><small>${t[3]}</small></div><button class="buy" data-research="${t[0]}" ${owned||!available||s.money<t[2]?'disabled':''}>${owned?'ACQUISE':available?fmt(t[2]):'VERROUILLÉE'}</button></article>`;
 }).join('');setText('researchCount',Object.keys(s.research).length+'/'+TECH.length);
 }
 
@@ -368,19 +385,19 @@ function missionCard(m,weekly){
 }
 
 function prestigeRequirement(){
-const target=1e14*Math.pow(18,s.prestige),worlds=WORLDS.reduce((n,,i)=>n+(planetUnlocked(i)?1:0),0);
-const allTen=WORLDS.slice(0,worlds).every((,w)=>buildingList(w).every((_,b)=>(s.buildings[w+'-'+b]||0)>=10));
-return{target,worlds,allTen,ok.runTotal>=target&&worlds>=1&&allTen};
+const target=1e14*Math.pow(18,s.prestige),worlds=WORLDS.reduce((n,_,i)=>n+(planetUnlocked(i)?1:0),0);
+const allTen=WORLDS.slice(0,worlds).every((_,w)=>buildingList(w).every((_,b)=>(s.buildings[w+'-'+b]||0)>=10));
+return{target,worlds,allTen,ok:s.runTotal>=target&&worlds>=1&&allTen};
 }
 function renderPrestige(){
 const box=document.getElementById('prestigeCard');if(!box)return;const p=prestigeRequirement();
 const gain=Math.max(1,Math.floor(Math.log10(Math.max(10,s.runTotal/Math.max(1,p.target)))));
-box.innerHTML=<div class="prestige-card"><div class="mission-top"><strong>👑 Prestige ${s.prestige+1}</strong><span>+${gain} jeton${gain>1?'s':''}</span></div><p>Recommence un run avec <strong>10 de chaque bâtiment sur chacune des ${p.worlds} planète(s) débloquée(s)</strong> et ${fmt(p.target)} de crédits de run. Le prestige conserve technologies, niveau, missions, cristaux et améliorations boutique.</p><small>${p.allTen?'✅ Tous les bâtiments requis sont au niveau 10.':'🔒 Il faut 10 de chaque bâtiment sur toutes les planètes débloquées.'}</small><small>Bonus permanent actuel : x${prestigeMult().toFixed(2)} production/clic.</small><button class="wide primary" data-prestige="1" ${p.ok?'':'disabled'}>ASCENSIONNER</button></div>;
+box.innerHTML=`<div class="prestige-card"><div class="mission-top"><strong>👑 Prestige ${s.prestige+1}</strong><span>+${gain} jeton${gain>1?'s':''}</span></div><p>Recommence un run avec <strong>10 de chaque bâtiment sur chacune des ${p.worlds} planète(s) débloquée(s)</strong> et ${fmt(p.target)} de crédits de run. Le prestige conserve technologies, niveau, missions, cristaux et améliorations boutique.</p><small>${p.allTen?'✅ Tous les bâtiments requis sont au niveau 10.':'🔒 Il faut 10 de chaque bâtiment sur toutes les planètes débloquées.'}</small><small>Bonus permanent actuel : x${prestigeMult().toFixed(2)} production/clic.</small><button class="wide primary" data-prestige="1" ${p.ok?'':'disabled'}>ASCENSIONNER</button></div>`;
 }
 
 function renderShop(){
 const list=document.getElementById('shopList');if(!list)return;
-list.innerHTML=SHOP_ITEMS.map(x=>{const lv=shopLevel(x[0]),cost=shopCost(x[0]);return <article class="shop-card"><div class="shop-icon">${x[2]}</div><div><strong>${x[1]}</strong><small>${x[3]}</small><em>Niveau ${lv}</em></div><button class="buy" data-shop="${x[0]}" ${s.crystals<cost?'disabled':''}>${fmt(cost)} 💎</button></article>}).join('');
+list.innerHTML=SHOP_ITEMS.map(x=>{const lv=shopLevel(x[0]),cost=shopCost(x[0]);return `<article class="shop-card"><div class="shop-icon">${x[2]}</div><div><strong>${x[1]}</strong><small>${x[3]}</small><em>Niveau ${lv}</em></div><button class="buy" data-shop="${x[0]}" ${s.crystals<cost?'disabled':''}>${fmt(cost)} 💎</button></article>`}).join('');
 setText('shopCrystals',fmt(s.crystals));
 }
 function shopCost(id){const x=SHOP_ITEMS.find(v=>v[0]===id);if(!x)return Infinity;return Math.ceil(x[4]*Math.pow(1.9,shopLevel(id)));}
@@ -395,14 +412,14 @@ return EVENTS.find(x=>x[0]===e)||null;
 }
 function eventMultiplier(kind){
 const e=activeEvent();if(!e)return 1;
-if(e[4]===kind||e[4]==='global'&&kind==='all'||e[4]==='global'&&kind==='global')return 1+(e[5]-1)(1+0.05shopLevel('event'));
+if(e[4]===kind||e[4]==='global'&&kind==='all'||e[4]==='global'&&kind==='global')return 1+(e[5]-1)*(1+0.05*shopLevel('event'));
 return 1;
 }
 function crystalChance(){
-return Math.min(.08,.008+shopLevel('crystal').0015+(activeEvent()?.[4]==='crystal'?0.024:0));
+return Math.min(.08,.008+shopLevel('crystal')*0.0015+(activeEvent()?.[4]==='crystal'?0.024:0));
 }
 function eventDurationMs(minutes){
-return minutes60000*Math.pow(1.08,shopLevel('duration'));
+return minutes*60000*Math.pow(1.08,shopLevel('duration'));
 }
 function scheduleEvent(from=Date.now()){
 const gap=(20+Math.random()*100)*60000;
@@ -414,9 +431,9 @@ if(!s.event?.nextAt){scheduleEvent(now);return;}
 if(activeEvent())return;
 if(now>=s.event.nextAt){
 const e=EVENTS[Math.floor(Math.random()*EVENTS.length)];
-s.event.current=e[0];s.event.activeUntil=now+eventDurationMs(e[6]);
+s.event.current=e[0];
+s.event.activeUntil=now+eventDurationMs(e[6]);
 scheduleEvent(s.event.activeUntil);
-s.event.current=e[0];s.event.activeUntil=now+eventDurationMs(e[6]);
 toast(e[2]+' '+e[1]+' !');
 save();
 }
@@ -460,26 +477,17 @@ return found;
 }
 
 function mine(){
-earn(clickPower());s.cLICKS++;s.combo=Math.min(12,s.combo+1);comboUntil=Date.now()+1700;
-function mine(){
-earn(clickPower());
-
-s.cLICKS++;
-s.combo=Math.min(12,s.combo+1);
-comboUntil=Date.now()+1700;
-
-setText('combo',s.combo);
-
-const bar=document.getElementById('comboBar');
-if(bar)bar.style.width=(s.combo/12*100)+'%';
-
-if(performance.now()-lastUi>120){
-uiHeader();
-lastUi=performance.now();
-}
-}
-setText('combo',s.combo);const bar=document.getElementById('comboBar');if(bar)bar.style.width=(s.combo/12*100)+'%';
-if(performance.now()-lastUi>120){uiHeader();lastUi=performance.now();}
+  earn(clickPower());
+  s.cLICKS++;
+  s.combo=Math.min(12,s.combo+1);
+  comboUntil=Date.now()+1700;
+  setText('combo',s.combo);
+  const bar=document.getElementById('comboBar');
+  if(bar)bar.style.width=(s.combo/12*100)+'%';
+  if(performance.now()-lastUi>120){
+    uiHeader();
+    lastUi=performance.now();
+  }
 }
 function buyBuilding(b){
 const list=buildingList(selectedWorld),c=buildingCost(selectedWorld,b);if(!planetUnlocked(selectedWorld))return;
@@ -503,14 +511,28 @@ s.weekly.claimed[id]=true;earn(m[4]);save();toast('📅 Quête hebdo +'+fmt(m[4]
 function doPrestige(){
 const p=prestigeRequirement();if(!p.ok){toast('🔒 Conditions de prestige non remplies');return;}
 const gain=Math.max(1,Math.floor(Math.log10(Math.max(10,s.runTotal/p.target)))+1);
-const keep={nickname.nickname,prestige.prestige+gain,prestigeShards.prestigeShards+gain,research:{...s.research},missions:{...s.missions},weekly:{...s.weekly},shopUpgrades:{...s.shopUpgrades},crystals.crystals,xp.xp,level.level,cLICKS.cLICKS,lifetimeTotal.lifetimeTotal,online.online};
+const keep={
+nickname:s.nickname,
+prestige:s.prestige+gain,
+prestigeShards:s.prestigeShards+gain,
+research:{...s.research},
+missions:{...s.missions},
+weekly:{...s.weekly},
+shopUpgrades:{...s.shopUpgrades},
+crystals:s.crystals,
+xp:s.xp,
+level:s.level,
+cLICKS:s.cLICKS,
+lifetimeTotal:s.lifetimeTotal,
+online:s.online
+};
 s=Object.assign(fresh(),keep);save();toast('👑 Prestige réussi : +'+gain);renderAll();syncCloud(true);
 }
 
 function earnOffline(){
 const now=Date.now(),previous=Number(s.lastActiveAt||now),elapsed=Math.max(0,now-previous),seconds=Math.min(elapsed/1000,offlineCap());
 s.lastOfflineClaimAt=now;s.lastActiveAt=now;if(seconds<10){save();return 0;}
-const rate=Math.max(0,Number(autoRate())||0),bonus=rateseconds.75*shopMult('offline',1.05);
+const rate=Math.max(0,Number(autoRate())||0),bonus=rate*seconds*0.75*shopMult('offline',1.05);
 if(Number.isFinite(bonus)&&bonus>0)earn(bonus);s.offlineLast=Number.isFinite(bonus)?bonus:0;save();return Number.isFinite(bonus)?bonus:0;
 }
 
@@ -520,7 +542,7 @@ if(data.session){s.online=true;return data.session;}const r=await sb.auth.signIn
 }
 async function syncCloud(force=false){
 if(resetting||syncing||(!force&&Date.now()-lastCloud<12000)||!sb)return;syncing=true;lastCloud=Date.now();
-try{await ensureAuth();if(resetting)return;const {error}=await sb.functions.invoke('game-sync',{body:{nickname.nickname,total.lifetimeTotal,prestige.prestige,level.level,xp.xp,state}});if(error)throw error;s.online=true;}
+try{await ensureAuth();if(resetting)return;const {error}=await sb.functions.invoke('game-sync',{body:{nickname:s.nickname,total:s.lifetimeTotal,prestige:s.prestige,level:s.level,xp:s.xp,state:s}});if(error)throw error;s.online=true;}
 catch(e){console.warn('Cloud sync:',e);s.online=false;}finally{syncing=false;if(!resetting)uiHeader();}
 }
 async function loadCloud(){
@@ -547,10 +569,10 @@ s=fresh();selectedWorld=0;currentScreen='mine';sessionStorage.setItem('sm-reset-
 window.location.replace(location.pathname+'?newgame='+Date.now());
 }catch(e){console.error('RESET ERROR:',e);resetting=false;syncing=false;if(btn){btn.disabled=false;btn.textContent='Réinitialiser la partie';}alert('Impossible de réinitialiser la partie.');}
 }
-function esc(x){return String(x).replace(/[&<>"']/g,m=>({'&':'&','<':'<','>':'>','"':'"',"'":'''}[m]));}
+function esc(x){return String(x).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function renderRank(){const box=document.getElementById('rankList');if(!box)return;box.innerHTML='<div class="section-note">☁️ Chargement du classement mondial…</div>';
-ensureAuth().then(async()=>{const {data,error}=await sb.from('leaderboard').select('nickname,total,prestige,level').order('total',{ascending}).order('prestige',{ascending}).order('level',{ascending}).limit(100);if(error)throw error;
-setText('rankMe','☁️ Score synchronisé · '+s.nickname+' · '+fmt(s.lifetimeTotal));box.innerHTML=data?.length?data.map((r,i)=><div class="rank-row"><div class="pos">${i<3?['🥇','🥈','🥉'][i]:i+1}</div><div><strong>${esc(r.nickname)}</strong><small>Niv. ${r.level} · Prestige ${r.prestige}</small></div><b>${fmt(Number(r.total))}</b></div>).join(''):'<div class="section-note">🏆 Aucun joueur classé pour le moment.</div>';
+ensureAuth().then(async()=>{const {data,error}=await sb.from('leaderboard').select('nickname,total,prestige,level').order('total',{ascending:false}).order('prestige',{ascending:false}).order('level',{ascending:false}).limit(100);if(error)throw error;
+setText('rankMe','☁️ Score synchronisé · '+s.nickname+' · '+fmt(s.lifetimeTotal));box.innerHTML=data?.length?data.map((r,i)=>`<div class="rank-row"><div class="pos">${i<3?['🥇','🥈','🥉'][i]:i+1}</div><div><strong>${esc(r.nickname)}</strong><small>Niv. ${r.level} · Prestige ${r.prestige}</small></div><b>${fmt(Number(r.total))}</b></div>`).join(''):'<div class="section-note">🏆 Aucun joueur classé pour le moment.</div>';
 }).catch(()=>{setText('rankMe','📱 Classement local');box.innerHTML='<div class="section-note">⚠️ Le cloud est indisponible. Active la connexion invité dans Profil pour publier ton score.</div>';});
 }
 function renderProfile(){const input=document.getElementById('nickname');if(input)input.value=s.nickname;}
