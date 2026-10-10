@@ -1,0 +1,9 @@
+SPACE MINING TYCOON V4.4 — CONFORT MOBILE ET SYNCHRO MINUTE
+
+Extrais les fichiers de cette archive à la racine du site AdminTestTycoon. Les fichiers web sont index.html, game.js, style.css, manifest.webmanifest et favicon.svg. Le fichier SQL inclus dans supabase/migrations est une copie de la migration déjà appliquée au projet cloud.
+
+La synchronisation automatique se déclenche toutes les 60 secondes pour le compte connecté. Les changements sont envoyés et les erreurs temporairement réessayées selon le délai de reprise. En mode local, le jeu conserve ses sauvegardes locales et n’effectue pas d’appel cloud.
+
+Le bouton EXTRAIRE et l’icône de planète changent selon le secteur actif. La page d’accueil passe à une grille lisible de deux colonnes sur téléphone; les titres des cartes et leurs actions peuvent s’afficher entièrement. Le zoom par pincement est désactivé sur mobile, le défilement reste disponible.
+
+L’économie, les gains, les stats, les comptes, la sauvegarde locale et la migration cloud V4.2 restent conservés. Ne réinitialise aucune sauvegarde.
