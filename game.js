@@ -92,9 +92,19 @@ function questNeed(q,lv=questLevel(q[0])){
 }
 function questReward(q,lv=questLevel(q[0])){
  const planet=Math.max(1,selectedWorld+1);
- const divisor=['investor','credits'].includes(q[0])?10:1;
- const calculated=Math.ceil(questNeed(q,lv)*0.11/divisor*Math.pow(1.35,lv-1)*Math.pow(1.18,planet-1));
- return Math.min(Number.MAX_SAFE_INTEGER,calculated,questNeed(q,lv));
+ const isReduced=['investor','credits'].includes(q[0]);
+ const divisor=isReduced?10:1;
+ const calculated=Math.ceil(
+  questNeed(q,lv)*0.11/divisor*
+  Math.pow(1.35,lv-1)*
+  Math.pow(1.18,planet-1)
+ );
+ const reward=Math.min(
+  Number.MAX_SAFE_INTEGER,
+  calculated,
+  questNeed(q,lv)
+ );
+ return isReduced?Math.ceil(reward/2):reward;
 }
 function questRawValue(q,world=selectedWorld){
  switch(q[3]){
@@ -309,7 +319,7 @@ function baseProd(w,b){
  if(w===0 && b<4){return [20,75,280,1050][b];}
  return 100*(1.1+.18*w)*Math.pow(3.2,w)*Math.pow(2,b)*Math.max(1,2-b*.08)*(w>=12?Math.pow(1.16,w-11):1);
 }
-function autoRate(){let r=0;WORLDS.forEach((_,w)=>BUILDING_ROLES.forEach((__,b)=>r+=(state.buildings[w+'-'+b]||0)*baseProd(w,b)*WORLDS[w][3]));return r*prestigeMult()*prodMult()*3*eventMult('prod')*eventMult('income')/3*2.5
+function autoRate(){let r=0;WORLDS.forEach((_,w)=>BUILDING_ROLES.forEach((__,b)=>r+=(state.buildings[w+'-'+b]||0)*baseProd(w,b)*WORLDS[w][3]));return r*prestigeMult()*prodMult()*3*eventMult('prod')*eventMult('income')/3*2.5}
 function earn(x){if(!Number.isFinite(x)||x<=0)return;state.money+=x;state.runTotal+=x;state.lifetimeTotal+=x;state.xp+=Math.max(1,Math.floor(Math.log10(Math.max(10,x))+2));state.level=Math.floor(Math.sqrt(state.xp/80))+1}
 function spend(x){state.money-=x;state.spent+=x}
 function toast(t){const e=document.getElementById('toast');if(!e)return;e.textContent=t;e.classList.add('toast-show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('toast-show'),2200)}
