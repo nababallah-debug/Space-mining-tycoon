@@ -88,24 +88,13 @@ const QUESTS=[
 function normalizedQuestLevel(slot){const savedLevel=Math.max(1,Math.floor(Number(slot?.level)||1));const claimed=Math.max(0,Math.floor(Number(slot?.completed)||0));return Math.min(100000,Math.max(savedLevel,claimed+1))}
 function questLevel(id){return normalizedQuestLevel(state.quests?.[id])}
 function questNeed(q,lv=questLevel(q[0])){
- return Math.min(Number.MAX_VALUE,Math.max(1,Math.ceil(q[4]*Math.pow(q[5],lv-1))));
+ return Math.min(Number.MAX_SAFE_INTEGER,Math.max(1,Math.ceil(q[4]*Math.pow(q[5],lv-1))));
 }
-
 function questReward(q,lv=questLevel(q[0])){
  const planet=Math.max(1,selectedWorld+1);
- const isReduced=['investor','credits'].includes(q[0]);
- const divisor=isReduced?10:1;
- const calculated=Math.ceil(
-  questNeed(q,lv)*0.11/divisor*
-  Math.pow(1.35,lv-1)*
-  Math.pow(1.18,planet-1)
- );
- const reward=Math.min(
-  Number.MAX_VALUE,
-  calculated,
-  questNeed(q,lv)
- );
- return reward;
+ const divisor=['investor','credits'].includes(q[0])?10:1;
+ const calculated=Math.ceil(questNeed(q,lv)*0.11/divisor*Math.pow(1.35,lv-1)*Math.pow(1.18,planet-1));
+ return Math.min(Number.MAX_SAFE_INTEGER,calculated,questNeed(q,lv));
 }
 function questRawValue(q,world=selectedWorld){
  switch(q[3]){
@@ -404,7 +393,7 @@ function mergeSnapshots(first,second){
  const preferred=Number(local.prestige||0)>Number(cloud.prestige||0)?local:Number(cloud.prestige||0)>Number(local.prestige||0)?cloud:Number(local.localUpdatedAt||0)>=Number(cloud.localUpdatedAt||0)?local:cloud;
  const other=preferred===local?cloud:local;const merged=cloneState(preferred);
  merged.prestige=Math.max(Number(local.prestige)||0,Number(cloud.prestige)||0);
- if(samePrestige){merged.money=Math.max(Number(local.money)||0,Number(cloud.money)||0);merged.runTotal=Math.max(Number(local.runTotal)||0,Number(cloud.runTotal)||0);merged.buildings=Object.fromEntries(Object.keys({...local.buildings,...cloud.buildings}).map(k=>[k,Math.max(Number(local.buildings?.[k])||0,Number(cloud.buildings?.[k])||0)]))}
+ if(samePrestige){merged.money=Math.max(0,Number(preferred.money)||0);merged.runTotal=Math.max(Number(local.runTotal)||0,Number(cloud.runTotal)||0);merged.buildings=Object.fromEntries(Object.keys({...local.buildings,...cloud.buildings}).map(k=>[k,Math.max(Number(local.buildings?.[k])||0,Number(cloud.buildings?.[k])||0)]))}
  merged.lifetimeTotal=Math.max(Number(local.lifetimeTotal)||0,Number(cloud.lifetimeTotal)||0);merged.xp=Math.max(Number(local.xp)||0,Number(cloud.xp)||0);merged.level=Math.max(Number(local.level)||1,Number(cloud.level)||1);merged.clicks=Math.max(Number(local.clicks)||0,Number(cloud.clicks)||0);merged.spent=Math.max(Number(local.spent)||0,Number(cloud.spent)||0);merged.crystals=Math.max(Number(local.crystals)||0,Number(cloud.crystals)||0);
  merged.research={...(local.research||{}),...(cloud.research||{})};merged.achievements=unionValues(local.achievements,cloud.achievements);merged.achievementClaimed=unionValues(local.achievementClaimed,cloud.achievementClaimed);merged.campaignClaimed=unionValues(local.campaignClaimed,cloud.campaignClaimed);merged.seenWorlds=unionValues(local.seenWorlds,cloud.seenWorlds);
  merged.daily=mergeCycle(local.daily,cloud.daily);merged.weekly=mergeCycle(local.weekly,cloud.weekly);merged.quests=mergeQuestState(local.quests,cloud.quests);merged.lastAt=Math.max(Number(local.lastAt)||0,Number(cloud.lastAt)||0);merged.offlineLast=Math.max(Number(local.offlineLast)||0,Number(cloud.offlineLast)||0);merged.localUpdatedAt=Math.max(Number(local.localUpdatedAt)||0,Number(cloud.localUpdatedAt)||0);merged.syncRevision=Math.max(Number(local.syncRevision)||0,Number(cloud.syncRevision)||0);merged.lastAccountUserId=local.lastAccountUserId||cloud.lastAccountUserId||null;merged.account=preferred.account||other.account||null;merged.cloudMeta={...(other.cloudMeta||{}),...(preferred.cloudMeta||{})};
