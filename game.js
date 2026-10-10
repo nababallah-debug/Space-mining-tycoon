@@ -92,8 +92,9 @@ function questNeed(q,lv=questLevel(q[0])){
 }
 function questReward(q,lv=questLevel(q[0])){
  const planet=Math.max(1,selectedWorld+1);
- const divisor=q[0]==='investor'?50:q[0]==='credits'?5:1;
- return Math.min(Number.MAX_SAFE_INTEGER,Math.ceil(questNeed(q,lv)*0.11/divisor*Math.pow(1.35,lv-1)*Math.pow(1.18,planet-1)/10));
+ const divisor=['investor','credits'].includes(q[0])?10:1;
+ const calculated=Math.ceil(questNeed(q,lv)*0.11/divisor*Math.pow(1.35,lv-1)*Math.pow(1.18,planet-1));
+ return Math.min(Number.MAX_SAFE_INTEGER,calculated,questNeed(q,lv));
 }
 function questRawValue(q,world=selectedWorld){
  switch(q[3]){
