@@ -88,8 +88,9 @@ const QUESTS=[
 function normalizedQuestLevel(slot){const savedLevel=Math.max(1,Math.floor(Number(slot?.level)||1));const claimed=Math.max(0,Math.floor(Number(slot?.completed)||0));return Math.min(100000,Math.max(savedLevel,claimed+1))}
 function questLevel(id){return normalizedQuestLevel(state.quests?.[id])}
 function questNeed(q,lv=questLevel(q[0])){
- return Math.min(Number.MAX_SAFE_INTEGER,Math.max(1,Math.ceil(q[4]*Math.pow(q[5],lv-1))));
+ return Math.min(Number.MAX_VALUE,Math.max(1,Math.ceil(q[4]*Math.pow(q[5],lv-1))));
 }
+
 function questReward(q,lv=questLevel(q[0])){
  const planet=Math.max(1,selectedWorld+1);
  const isReduced=['investor','credits'].includes(q[0]);
@@ -100,11 +101,11 @@ function questReward(q,lv=questLevel(q[0])){
   Math.pow(1.18,planet-1)
  );
  const reward=Math.min(
-  Number.MAX_SAFE_INTEGER,
+  Number.MAX_VALUE,
   calculated,
   questNeed(q,lv)
  );
- return isReduced?Math.ceil(reward/2):reward;
+ return reward;
 }
 function questRawValue(q,world=selectedWorld){
  switch(q[3]){
